@@ -1,0 +1,11 @@
+package cc.shinemoon.occt.model
+
+import cc.shinemoon.occt.classifier.ShapeType
+
+data class ShapeHierarchyNode(
+    val treeNodeId: Int,       // Unique tree traversal index
+    val parentTreeNodeId: Int,
+    val shapeType: ShapeType,
+    val topologyIndex: Int,    // Shared native topological index (Edge #3, Face #1, etc.)
+    val children: MutableList<ShapeHierarchyNode> = mutableListOf()
+)
