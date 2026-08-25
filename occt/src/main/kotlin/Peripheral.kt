@@ -102,12 +102,12 @@ private fun DoubleArray.toCenterOfMass(): Triple<Double, Double, Double> =
 
 private fun DoubleArray.toInertiaTensor(): InertiaTensor =
     InertiaTensor(
-        ixx = get(1),
-        iyy = get(2),
-        izz = get(3),
-        ixy = get(4),
-        ixz = get(5),
-        iyz = get(6),
+        ixx = get(0),
+        iyy = get(1),
+        izz = get(2),
+        ixy = get(3),
+        ixz = get(4),
+        iyz = get(5),
         principalMoments = Triple(get(6), get(7), get(8)),
         principalAxes = listOf(
             Triple(get(9), get(10), get(11)),

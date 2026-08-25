@@ -1,4 +1,4 @@
-package cc.shinemoon.datum.dragdrop
+package cc.shinemoon.datum.ui.launcher
 
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Arrangement
@@ -26,13 +26,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import cc.shinemoon.datum.dashedBorder
+import cc.shinemoon.datum.uistate.AppScreenStatus
 import cc.shinemoon.occt.OcctDllResolver
 import cc.shinemoon.occt.OcctInspectionSession
+import cc.shinemoon.occt.model.OcctInspectionData
 import cc.shinemoon.occt.toStructuredModel
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.FilePlus
-import org.jetbrains.skia.FontStyle
 import java.io.File
 import java.net.URI
 import java.nio.file.Files
@@ -47,9 +47,13 @@ interface OnDragListener {
 
 @Preview
 @Composable
-fun example() {
+fun DropZone(
+    onState: (AppScreenStatus) -> Unit = {},
+    onInspectionData: (OcctInspectionData) -> Unit = {},
+) {
     Box(
         Modifier
+            .padding(24.dp)
             .dashedBorder(
                 8.dp,
                 color = Color.Gray,
@@ -57,46 +61,46 @@ fun example() {
                 dashLength = 24.dp,
                 gapLength = 10.dp,
             )
-        .fillMaxSize()
-        .dragAndDropTarget(
-            // With "true" as the value of shouldStartDragAndDrop,
-            // drag-and-drop operations are enabled unconditionally.
-            shouldStartDragAndDrop = { true },
-            target = operation(
-                object : OnDragListener {
-                    override fun onStart() {
-                        println("onStart")
-                    }
+            .fillMaxSize()
+            .dragAndDropTarget(
+                // With "true" as the value of shouldStartDragAndDrop,
+                // drag-and-drop operations are enabled unconditionally.
+                shouldStartDragAndDrop = { true },
+                target = operation(
+                    object : OnDragListener {
+                        override fun onStart() {
+                            println("onStart")
+                        }
 
-                    override fun onEnded() {
-                        println("onEnded")
-                    }
+                        override fun onEnded() {
+                            println("onEnded")
+                        }
 
-                    override fun onValidFile(file: File) {
-                        println("onValidFile")
-                        OcctInspectionSession(OcctDllResolver.resolve()).use {
-                            println(it.isOpen)
+                        override fun onValidFile(file: File) {
+                            println("onValidFile")
+                            onState(AppScreenStatus.LOADING)
+                            OcctInspectionSession(OcctDllResolver.resolve()).use {
+                                val path = Path.of(file.absolutePath)
 
-                            val path = Path.of(file.absolutePath)
+                                if (Files.exists(path) && Files.isReadable(path)) {
+                                    println("File is ready to be loaded.");
+                                } else {
+                                    System.err.println("File not found or cannot be read.");
+                                }
 
-                            if (Files.exists(path) && Files.isReadable(path)) {
-                                println("File is ready to be loaded.");
-                            } else {
-                                System.err.println("File not found or cannot be read.");
-                            }
+                                onState(AppScreenStatus.IDLE)
 
-                            it.inspect(path).apply {
-                                println(toStructuredModel())
+                                val inspectionData = it.inspect(path).toStructuredModel()
+                                onInspectionData(inspectionData)
                             }
                         }
-                    }
 
-                    override fun onInvalidFile() {
-                        println("onInvalidFile")
+                        override fun onInvalidFile() {
+                            println("onInvalidFile")
+                        }
                     }
-                }
+                )
             )
-        )
     ) { boxContent() }
 }
 
@@ -141,7 +145,7 @@ private fun boxContent() =
 @Composable
 fun operation(listener: OnDragListener): DragAndDropTarget {
     return remember(listener) {
-        object: DragAndDropTarget {
+        object : DragAndDropTarget {
             // Highlights the border of a potential drop target
             override fun onStarted(event: DragAndDropEvent) {
                 listener.onStart()

@@ -27,7 +27,16 @@ kotlin {
             //Feather Icon
             implementation("br.com.devsrsouza.compose.icons:feather:1.1.1")
 
+            //Viewmodel
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+
+            //Coroutine
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+
             implementation(project(":occt"))
+        }
+        jvmMain.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.8.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

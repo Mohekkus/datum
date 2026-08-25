@@ -1,8 +1,8 @@
 package cc.shinemoon.datum
 
-import cc.shinemoon.occt.OcctModel
+import cc.shinemoon.occt.model.OcctInspectionData
 
 sealed interface Screen {
     data object DropZone : Screen
-    data class Results(val model: OcctModel) : Screen
+    data object Results : Screen
 }
