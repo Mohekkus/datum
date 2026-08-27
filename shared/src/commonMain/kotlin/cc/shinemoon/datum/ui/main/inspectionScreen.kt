@@ -1,8 +1,9 @@
-package cc.shinemoon.datum.ui.preview
+package cc.shinemoon.datum.ui.main
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,9 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import cc.shinemoon.occt.classifier.SurfaceType
+import cc.shinemoon.datum.model.raw.preset.MetricStatus
+import cc.shinemoon.datum.model.raw.preset.PresetEvaluation
+import cc.shinemoon.datum.model.raw.preset.PresetModel
 import cc.shinemoon.occt.model.BoundingBox
 import cc.shinemoon.occt.model.EdgeRecord
 import cc.shinemoon.occt.model.FaceRecord
@@ -35,23 +37,30 @@ import compose.icons.feathericons.Maximize
 import compose.icons.feathericons.MinusCircle
 import compose.icons.feathericons.Move
 import compose.icons.feathericons.Package
+import compose.icons.feathericons.Settings
 import compose.icons.feathericons.Target
 import compose.icons.feathericons.X
 import compose.icons.feathericons.XCircle
 
+interface InspectionInterface {
+    fun onClear()
+    fun onToggleSidebar()
+    fun onPresetLoaded(preset: PresetModel)
+}
+
 @Composable
 fun InspectionScreen(
     data: OcctInspectionData,
+    evaluation: PresetEvaluation?,
     modifier: Modifier = Modifier,
-    onClear: () -> Unit
+    listener: InspectionInterface
 ) {
-    var presetApplied by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(12.dp, 12.dp, 12.dp, 0.dp)
             .verticalScroll(scrollState)
     ) {
         // --- HEADER ---
@@ -60,7 +69,7 @@ fun InspectionScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedButton(
-                onClick = onClear,
+                onClick = { listener.onClear() },
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
             ) {
                 Icon(FeatherIcons.ArrowLeft, contentDescription = "Back", modifier = Modifier.size(16.dp))
@@ -81,6 +90,14 @@ fun InspectionScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+
+            Spacer(Modifier.weight(1f))
+            IconButton(
+                shape = CircleShape,
+                onClick = { listener.onToggleSidebar() },
+            ) {
+                Icon(imageVector = FeatherIcons.Settings, contentDescription = "Toggle rules sidebar")
             }
         }
 
@@ -138,10 +155,15 @@ fun InspectionScreen(
 
         // --- INFO TEXT ---
         Text(
-            text = if (presetApplied) "Preset applied: Thresholds active (Pass/Fail evaluation)"
-            else "Objective facts extracted — ungrouped, no thresholds applied yet",
+            text = evaluation?.let {
+                buildString {
+                    append("${it.presetName}: ${it.passedCount}/${it.checks.size} checks passed")
+                    if (it.overall == MetricStatus.FAIL) append(" — FAILED")
+                }
+            } ?: "Objective facts extracted — no preset thresholds applied yet",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = if (evaluation?.overall == MetricStatus.FAIL) MaterialTheme.colorScheme.error
+            else MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(24.dp))
 
@@ -159,32 +181,10 @@ fun InspectionScreen(
 
             // RIGHT COLUMN: Samples
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                EdgeSamplesCard(data.edges, presetApplied)
-                FaceSamplesCard(data.faces, presetApplied)
-                ToleranceCard(data.tolerances, presetApplied)
+                EdgeSamplesCard(data.edges, evaluation)
+                FaceSamplesCard(data.faces, evaluation)
+                ToleranceCard(data.tolerances, evaluation)
             }
-        }
-
-        Spacer(Modifier.weight(1f))
-
-        // --- 4. FOOTER TOGGLE ---
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { presetApplied = !presetApplied }
-                .padding(vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                checked = presetApplied,
-                onCheckedChange = { presetApplied = it }
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = "Apply preset to group these into pass/fail checks",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
@@ -361,7 +361,7 @@ fun MassPropertiesCard(mass: MassProperties) {
 }
 
 @Composable
-fun ToleranceCard(tolerances: ToleranceStatistics, presetApplied: Boolean) {
+fun ToleranceCard(tolerances: ToleranceStatistics, evaluation: PresetEvaluation?) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -371,15 +371,15 @@ fun ToleranceCard(tolerances: ToleranceStatistics, presetApplied: Boolean) {
             }
             Spacer(Modifier.height(16.dp))
 
-            ToleranceRow("Vertex", tolerances.maxVertexTol, tolerances.avgVertexTol, presetApplied)
-            ToleranceRow("Edge", tolerances.maxEdgeTol, tolerances.avgEdgeTol, presetApplied)
-            ToleranceRow("Face", tolerances.maxFaceTol, tolerances.avgFaceTol, presetApplied)
+            ToleranceRow("Vertex", tolerances.maxVertexTol, tolerances.avgVertexTol, evaluation?.checkStatus("tolerance.vertex"))
+            ToleranceRow("Edge", tolerances.maxEdgeTol, tolerances.avgEdgeTol, evaluation?.checkStatus("tolerance.edge"))
+            ToleranceRow("Face", tolerances.maxFaceTol, tolerances.avgFaceTol, evaluation?.checkStatus("tolerance.face"))
         }
     }
 }
 
 @Composable
-fun EdgeSamplesCard(edges: List<EdgeRecord>, presetApplied: Boolean) {
+fun EdgeSamplesCard(edges: List<EdgeRecord>, evaluation: PresetEvaluation?) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -400,8 +400,7 @@ fun EdgeSamplesCard(edges: List<EdgeRecord>, presetApplied: Boolean) {
                 SampleRow(
                     id = "edge_${edge.edgeId.toString().padStart(4, '0')}",
                     value = desc,
-                    // TODO: Replace null with actual preset evaluation logic, e.g., evaluateEdgePreset(edge, preset)
-                    status = if (presetApplied) MetricStatus.PASS else null
+                    status = evaluation?.edgeStatuses?.get(edge.edgeId)
                 )
             }
         }
@@ -409,7 +408,7 @@ fun EdgeSamplesCard(edges: List<EdgeRecord>, presetApplied: Boolean) {
 }
 
 @Composable
-fun FaceSamplesCard(faces: List<FaceRecord>, presetApplied: Boolean) {
+fun FaceSamplesCard(faces: List<FaceRecord>, evaluation: PresetEvaluation?) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -426,8 +425,7 @@ fun FaceSamplesCard(faces: List<FaceRecord>, presetApplied: Boolean) {
                     id = "face_${face.faceId.toString().padStart(4, '0')}",
                     value = desc,
                     subValue = "tol ${String.format("%.1e", face.tolerance)}",
-                    // TODO: Replace null with actual preset evaluation logic
-                    status = if (presetApplied) MetricStatus.PASS else null
+                    status = evaluation?.faceStatuses?.get(face.faceId)
                 )
             }
         }
@@ -447,10 +445,7 @@ private fun MetricRow(label: String, value: String) {
 }
 
 @Composable
-private fun ToleranceRow(type: String, maxTol: Double, avgTol: Double, presetApplied: Boolean) {
-    // TODO: Evaluate maxTol against preset limit here to determine status
-    val status = if (presetApplied) MetricStatus.PASS else null
-
+private fun ToleranceRow(type: String, maxTol: Double, avgTol: Double, status: MetricStatus?) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Text(type, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
 
@@ -522,7 +517,6 @@ private fun SampleRow(id: String, value: String, subValue: String? = null, statu
 @Composable
 private fun reusableCard(
     icon: ImageVector,
-    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     Card(
@@ -539,5 +533,3 @@ private fun reusableCard(
         }
     }
 }
-
-enum class MetricStatus { PASS, FAIL, WARNING }

@@ -26,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import cc.shinemoon.datum.uistate.AppScreenStatus
 import cc.shinemoon.occt.OcctDllResolver
 import cc.shinemoon.occt.OcctInspectionSession
 import cc.shinemoon.occt.model.OcctInspectionData
@@ -48,7 +47,6 @@ interface OnDragListener {
 @Preview
 @Composable
 fun DropZone(
-    onState: (AppScreenStatus) -> Unit = {},
     onInspectionData: (OcctInspectionData) -> Unit = {},
 ) {
     Box(
@@ -78,7 +76,6 @@ fun DropZone(
 
                         override fun onValidFile(file: File) {
                             println("onValidFile")
-                            onState(AppScreenStatus.LOADING)
                             OcctInspectionSession(OcctDllResolver.resolve()).use {
                                 val path = Path.of(file.absolutePath)
 
@@ -87,8 +84,6 @@ fun DropZone(
                                 } else {
                                     System.err.println("File not found or cannot be read.");
                                 }
-
-                                onState(AppScreenStatus.IDLE)
 
                                 val inspectionData = it.inspect(path).toStructuredModel()
                                 onInspectionData(inspectionData)
