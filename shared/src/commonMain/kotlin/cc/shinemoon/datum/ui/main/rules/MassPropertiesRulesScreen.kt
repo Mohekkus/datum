@@ -22,6 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cc.shinemoon.datum.model.raw.MassPropertyRules
+import cc.shinemoon.datum.model.raw.preset.PresetEvaluation
+import cc.shinemoon.datum.model.raw.preset.RuleGroup
+import cc.shinemoon.datum.ui.MetricStatusChip
 import cc.shinemoon.datum.ui.ReusableRowNumberField
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Package
@@ -30,6 +33,7 @@ import compose.icons.feathericons.Package
 fun MassPropertyRulesScreen(
     rules: MassPropertyRules,
     onRulesChanged: (MassPropertyRules) -> Unit,
+    evaluation: PresetEvaluation? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -44,6 +48,10 @@ fun MassPropertyRulesScreen(
             Icon(FeatherIcons.Package, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.width(8.dp))
             Text("Mass Properties", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.weight(1f))
+            evaluation?.groupStatus(RuleGroup.MASS_PROPERTIES)?.let {
+                MetricStatusChip(it)
+            }
         }
 
         if (expanded) {

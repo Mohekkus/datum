@@ -24,6 +24,9 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cc.shinemoon.datum.model.raw.TopologyRules
+import cc.shinemoon.datum.model.raw.preset.PresetEvaluation
+import cc.shinemoon.datum.model.raw.preset.RuleGroup
+import cc.shinemoon.datum.ui.MetricStatusChip
 import cc.shinemoon.datum.ui.ReusableRowNumberField
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Layers
@@ -32,6 +35,7 @@ import compose.icons.feathericons.Layers
 fun TopologyRulesScreen(
     rules: TopologyRules,
     onRulesChanged: (TopologyRules) -> Unit,
+    evaluation: PresetEvaluation? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -56,6 +60,10 @@ fun TopologyRulesScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold
             )
+            Spacer(Modifier.weight(1f))
+            evaluation?.groupStatus(RuleGroup.TOPOLOGY)?.let {
+                MetricStatusChip(it)
+            }
         }
 
         if (expanded) {

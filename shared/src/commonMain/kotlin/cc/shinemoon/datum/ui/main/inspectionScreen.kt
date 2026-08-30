@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import cc.shinemoon.datum.model.raw.preset.MetricStatus
 import cc.shinemoon.datum.model.raw.preset.PresetEvaluation
 import cc.shinemoon.datum.model.raw.preset.PresetModel
+import cc.shinemoon.datum.ui.MetricStatusChip
 import cc.shinemoon.occt.model.BoundingBox
 import cc.shinemoon.occt.model.EdgeRecord
 import cc.shinemoon.occt.model.FaceRecord
@@ -153,18 +154,28 @@ fun InspectionScreen(
         BoundingBoxCard(data.boundingBox)
         Spacer(Modifier.height(16.dp))
 
+        // --- PRESET VERDICT BADGE ---
+        evaluation?.overall?.let { status ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MetricStatusChip(status)
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "${evaluation.presetName} · ${evaluation.passedCount}/${evaluation.checks.size} checks passed",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+        } ?: run {
+            Text(
+                text = "Objective facts extracted — no preset thresholds applied yet",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(8.dp))
+        }
+
         // --- INFO TEXT ---
-        Text(
-            text = evaluation?.let {
-                buildString {
-                    append("${it.presetName}: ${it.passedCount}/${it.checks.size} checks passed")
-                    if (it.overall == MetricStatus.FAIL) append(" — FAILED")
-                }
-            } ?: "Objective facts extracted — no preset thresholds applied yet",
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (evaluation?.overall == MetricStatus.FAIL) MaterialTheme.colorScheme.error
-            else MaterialTheme.colorScheme.onSurfaceVariant
-        )
         Spacer(Modifier.height(24.dp))
 
         // --- 3. TWO-COLUMN GRID ---

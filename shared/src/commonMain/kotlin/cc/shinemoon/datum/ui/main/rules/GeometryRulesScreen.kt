@@ -25,6 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cc.shinemoon.datum.model.raw.GeometryRules
+import cc.shinemoon.datum.model.raw.preset.PresetEvaluation
+import cc.shinemoon.datum.model.raw.preset.RuleGroup
+import cc.shinemoon.datum.ui.MetricStatusChip
 import cc.shinemoon.occt.classifier.CurveType
 import cc.shinemoon.occt.classifier.SurfaceType
 import compose.icons.FeatherIcons
@@ -34,6 +37,7 @@ import compose.icons.feathericons.Hexagon
 fun GeometryRulesScreen(
     rules: GeometryRules,
     onRulesChanged: (GeometryRules) -> Unit,
+    evaluation: PresetEvaluation? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -48,6 +52,10 @@ fun GeometryRulesScreen(
             Icon(FeatherIcons.Hexagon, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.width(8.dp))
             Text("Geometry", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.weight(1f))
+            evaluation?.groupStatus(RuleGroup.GEOMETRY)?.let {
+                MetricStatusChip(it)
+            }
         }
 
         if (expanded) {

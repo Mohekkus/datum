@@ -10,5 +10,10 @@ data class PresetEvaluation(
     val overall: MetricStatus get() =
         if (checks.any { it.status == MetricStatus.FAIL }) MetricStatus.FAIL else MetricStatus.PASS
     fun groupChecks(group: RuleGroup): List<RuleCheck> = checks.filter { it.group == group }
+    fun groupStatus(group: RuleGroup): MetricStatus? {
+        val g = groupChecks(group)
+        if (g.isEmpty()) return null
+        return if (g.any { it.status == MetricStatus.FAIL }) MetricStatus.FAIL else MetricStatus.PASS
+    }
     fun checkStatus(id: String): MetricStatus? = checks.firstOrNull { it.id == id }?.status
 }

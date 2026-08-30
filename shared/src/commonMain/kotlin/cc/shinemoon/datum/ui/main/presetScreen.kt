@@ -1,12 +1,16 @@
 package cc.shinemoon.datum.ui.main
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,11 +33,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cc.shinemoon.datum.model.raw.preset.MetricStatus
 import cc.shinemoon.datum.model.raw.preset.PresetEvaluation
 import cc.shinemoon.datum.model.raw.preset.PresetModel
+import cc.shinemoon.datum.ui.MetricStatusChip
 import cc.shinemoon.datum.ui.main.rules.GeometryRulesScreen
 import cc.shinemoon.datum.ui.main.rules.MassPropertyRulesScreen
 import cc.shinemoon.datum.ui.main.rules.ToleranceRulesScreen
@@ -132,6 +138,17 @@ fun PresetScreen(
                             )
                         }
                     }
+                    if (result.checks.isNotEmpty()) {
+                        Spacer(Modifier.height(6.dp))
+                        SegmentedProgressBar(
+                            passed = result.passedCount,
+                            failed = result.checks.size - result.passedCount,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(6.dp)
+                                .clip(RoundedCornerShape(3.dp)),
+                        )
+                    }
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -183,21 +200,25 @@ fun PresetScreen(
                 TopologyRulesScreen(
                     rules = active.topologyRules,
                     onRulesChanged = { updated -> onPresetUpdated(active.copy(topologyRules = updated)) },
+                    evaluation = evaluation,
                 )
                 Spacer(Modifier.height(12.dp))
                 MassPropertyRulesScreen(
                     rules = active.massPropertyRules,
                     onRulesChanged = { updated -> onPresetUpdated(active.copy(massPropertyRules = updated)) },
+                    evaluation = evaluation,
                 )
                 Spacer(Modifier.height(12.dp))
                 ToleranceRulesScreen(
                     rules = active.toleranceRules,
                     onRulesChanged = { updated -> onPresetUpdated(active.copy(toleranceRules = updated)) },
+                    evaluation = evaluation,
                 )
                 Spacer(Modifier.height(12.dp))
                 GeometryRulesScreen(
                     rules = active.geometryRules,
                     onRulesChanged = { updated -> onPresetUpdated(active.copy(geometryRules = updated)) },
+                    evaluation = evaluation,
                 )
             }
         }
@@ -210,5 +231,33 @@ private fun browseForPresetFile(onContentRead: (String?) -> Unit) {
         dialog.filenameFilter = FilenameFilter { _, name -> name.endsWith(".json", ignoreCase = true) }
         dialog.isVisible = true
         onContentRead(dialog.files.singleOrNull()?.readText())
+    }
+}
+
+@Composable
+private fun SegmentedProgressBar(
+    passed: Int,
+    failed: Int,
+    modifier: Modifier = Modifier,
+) {
+    val total = passed + failed
+    if (total <= 0) return
+    Row(modifier = modifier) {
+        if (passed > 0) {
+            Box(
+                modifier = Modifier
+                    .weight(passed.toFloat())
+                    .fillMaxHeight()
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+        }
+        if (failed > 0) {
+            Box(
+                modifier = Modifier
+                    .weight(failed.toFloat())
+                    .fillMaxHeight()
+                    .background(MaterialTheme.colorScheme.error)
+            )
+        }
     }
 }
