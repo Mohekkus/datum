@@ -43,21 +43,25 @@ import cc.shinemoon.datumabase.model.preset.PresetModel
 import cc.shinemoon.datumabase.model.utility.MetricStatus
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Check
+import compose.icons.feathericons.Save
 import compose.icons.feathericons.XCircle
 import java.awt.EventQueue
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.FilenameFilter
 
+interface PresetInterface {
+    fun onPresetUpdate(presetModel: PresetModel)
+    fun onSavingCurrentPreset(name: String)
+}
+
 @Composable
 fun PresetScreen(
     preset: PresetModel?,
     evaluation: PresetEvaluation?,
-    onPresetLoaded: (PresetModel) -> Unit,
-    onPresetUpdated: (PresetModel) -> Unit,
+    presetInterface: PresetInterface
 ) {
     var parseError by remember { mutableStateOf<String?>(null) }
-    var expanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -71,13 +75,21 @@ fun PresetScreen(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Rules", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.weight(1f))
+                Icon(
+                    imageVector = FeatherIcons.Save,
+                    contentDescription = "Saving rules",
+                    modifier = Modifier.clickable {
+                         presetInterface.onSavingCurrentPreset(
+                             "WIP"
+                         )
+                    }
+                )
             }
             Spacer(Modifier.height(16.dp))
 
-            // Overall verdict chip
             evaluation?.let { result ->
                 Spacer(Modifier.height(12.dp))
                 val passed = result.overall == MetricStatus.PASS
@@ -130,30 +142,29 @@ fun PresetScreen(
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-            // Rule configuration
             preset?.let { active ->
                 Spacer(Modifier.height(4.dp))
                 TopologyRulesScreen(
                     rules = active.topologyRules,
-                    onRulesChanged = { updated -> onPresetUpdated(active.copy(topologyRules = updated)) },
+                    onRulesChanged = { updated -> presetInterface.onPresetUpdate(active.copy(topologyRules = updated)) },
                     evaluation = evaluation,
                 )
                 Spacer(Modifier.height(12.dp))
                 MassPropertyRulesScreen(
                     rules = active.massPropertyRules,
-                    onRulesChanged = { updated -> onPresetUpdated(active.copy(massPropertyRules = updated)) },
+                    onRulesChanged = { updated -> presetInterface.onPresetUpdate(active.copy(massPropertyRules = updated)) },
                     evaluation = evaluation,
                 )
                 Spacer(Modifier.height(12.dp))
                 ToleranceRulesScreen(
                     rules = active.toleranceRules,
-                    onRulesChanged = { updated -> onPresetUpdated(active.copy(toleranceRules = updated)) },
+                    onRulesChanged = { updated -> presetInterface.onPresetUpdate(active.copy(toleranceRules = updated)) },
                     evaluation = evaluation,
                 )
                 Spacer(Modifier.height(12.dp))
                 GeometryRulesScreen(
                     rules = active.geometryRules,
-                    onRulesChanged = { updated -> onPresetUpdated(active.copy(geometryRules = updated)) },
+                    onRulesChanged = { updated -> presetInterface.onPresetUpdate(active.copy(geometryRules = updated)) },
                     evaluation = evaluation,
                 )
             }

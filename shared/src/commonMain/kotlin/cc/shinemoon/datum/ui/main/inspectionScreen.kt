@@ -2,7 +2,7 @@ package cc.shinemoon.datum.ui.main
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,7 +37,7 @@ import compose.icons.feathericons.Maximize
 import compose.icons.feathericons.MinusCircle
 import compose.icons.feathericons.Move
 import compose.icons.feathericons.Package
-import compose.icons.feathericons.Settings
+import compose.icons.feathericons.Plus
 import compose.icons.feathericons.Target
 import compose.icons.feathericons.X
 import compose.icons.feathericons.XCircle
@@ -45,7 +45,9 @@ import compose.icons.feathericons.XCircle
 interface InspectionInterface {
     fun onClear()
     fun onToggleSidebar()
-    fun onPresetLoaded(preset: PresetModel)
+    fun onPresetModified(preset: PresetModel)
+    fun savedPresetList(): List<String>
+    fun onLoadPreset(name: String)
 }
 
 @Composable
@@ -60,10 +62,9 @@ fun InspectionScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(12.dp, 12.dp, 12.dp, 0.dp)
+            .padding(12.dp)
             .verticalScroll(scrollState)
     ) {
-        // --- HEADER ---
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -93,11 +94,33 @@ fun InspectionScreen(
             }
 
             Spacer(Modifier.weight(1f))
-            IconButton(
-                shape = CircleShape,
-                onClick = { listener.onToggleSidebar() },
-            ) {
-                Icon(imageVector = FeatherIcons.Settings, contentDescription = "Toggle rules sidebar")
+            val savedPresetList = listener.savedPresetList()
+            if (savedPresetList.isEmpty()) {
+                PresetButton { listener.onToggleSidebar() }
+            } else {
+                var isExpanded by remember { mutableStateOf(false) }
+
+                @OptIn(ExperimentalMaterial3Api::class)
+                ExposedDropdownMenuBox(
+                    expanded = isExpanded,
+                    onExpandedChange = { isExpanded = !isExpanded },
+                ) {
+                    PresetButton { isExpanded != isExpanded }
+
+                    ExposedDropdownMenu(
+                        expanded = isExpanded,
+                        onDismissRequest = { isExpanded = false },
+                    ) {
+                        savedPresetList.forEach { item ->
+                            DropdownMenuItem(
+                                text = { Text(text = item) },
+                                onClick = {
+                                    listener.onLoadPreset(item)
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -143,17 +166,14 @@ fun InspectionScreen(
                 }
             }
 
-            // --- 1. VALIDITY STATUS ---
             Spacer(Modifier.weight(1f))
             ValidityStatusCard(data.topologicalState)
         }
 
-        // --- 2. BOUNDING BOX ---
         Spacer(Modifier.height(16.dp))
         BoundingBoxCard(data.boundingBox)
         Spacer(Modifier.height(16.dp))
 
-        // --- PRESET VERDICT BADGE ---
         evaluation?.overall?.let { status ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MetricStatusChip(status)
@@ -174,10 +194,7 @@ fun InspectionScreen(
             Spacer(Modifier.height(8.dp))
         }
 
-        // --- INFO TEXT ---
         Spacer(Modifier.height(24.dp))
-
-        // --- 3. TWO-COLUMN GRID ---
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(24.dp)
@@ -199,9 +216,28 @@ fun InspectionScreen(
     }
 }
 
-// ============================================================================
-// SUB-COMPONENTS
-// ============================================================================
+@Composable
+fun PresetButton(
+    listener: () -> Unit
+) {
+    OutlinedCard(
+        shape = RoundedCornerShape(24.dp),
+        onClick = (listener)
+    ) {
+        Row(
+            Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = FeatherIcons.Plus,
+                contentDescription = "Add preset",
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(Modifier.size(8.dp))
+            Text("Preset")
+        }
+    }
+}
 
 @Composable
 fun ValidityStatusCard(state: TopologicalState) {

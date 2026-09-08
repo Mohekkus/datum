@@ -7,7 +7,7 @@ import androidx.room3.Query
 import cc.shinemoon.datumabase.database.entities.PresetEntity
 
 @Dao
-interface PresetDao {
+internal interface PresetDao {
 
     @Query("select * from user_preset")
     suspend fun getAll(): List<PresetEntity>
@@ -26,4 +26,7 @@ interface PresetDao {
 
     @Delete
     suspend fun delete(preset: PresetEntity)
+
+    @Query("delete from user_preset where name = :name")
+    suspend fun delete(name: String)
 }

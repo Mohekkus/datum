@@ -7,7 +7,7 @@ import androidx.room3.PrimaryKey
 @Entity(
     tableName = "user_preset",
 )
-data class PresetEntity(
+internal data class PresetEntity(
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
     @ColumnInfo(name = "name") var name: String,
     @ColumnInfo(name = "rulesString") var rulesString: String,

@@ -24,6 +24,7 @@ fun MainScreen(
 
     val preset by viewmodel.preset.collectAsState()
     val evaluation by viewmodel.evaluation.collectAsState()
+    val savedPresetsName by viewmodel.savedPresetsName.collectAsState()
 
     val listener = object : InspectionInterface {
         override fun onClear() = onClear()
@@ -32,8 +33,18 @@ fun MainScreen(
             barToggled = !barToggled
         }
 
-        override fun onPresetLoaded(vPreset: PresetModel) {
+        override fun onPresetModified(vPreset: PresetModel) {
             viewmodel.updatePreset(vPreset)
+            viewmodel.evaluate()
+        }
+
+        override fun savedPresetList(): List<String> {
+            viewmodel.loadAllPresetsName()
+            return savedPresetsName
+        }
+
+        override fun onLoadPreset(name: String) {
+            viewmodel.loadPreset(name)
             viewmodel.evaluate()
         }
     }
@@ -56,11 +67,16 @@ fun MainScreen(
             PresetScreen(
                 preset = preset,
                 evaluation = evaluation,
-                onPresetLoaded = listener::onPresetLoaded,
-                onPresetUpdated = { updated ->
-                    viewmodel.updatePreset(updated)
-                    viewmodel.evaluate()
-                },
+                presetInterface = object : PresetInterface {
+                    override fun onPresetUpdate(presetModel: PresetModel) {
+                        viewmodel.updatePreset(presetModel)
+                        viewmodel.evaluate()
+                    }
+
+                    override fun onSavingCurrentPreset(name: String) {
+                        TODO("Not yet implemented")
+                    }
+                }
             )
         }
     }

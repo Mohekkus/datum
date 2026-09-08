@@ -19,11 +19,9 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-
-    val room_version = "3.0.2"
-    implementation("androidx.room3:room3-runtime:$room_version")
-    ksp("androidx.room3:room3-compiler:$room_version")
-
+    implementation(libs.androidx.sqlite.bundled.jvm)
+    implementation(libs.androidx.room3.runtime.jvm)
+    ksp(libs.androidx.room3.compiler)
     implementation(libs.kotlinx.serializationJson)
 }
 
