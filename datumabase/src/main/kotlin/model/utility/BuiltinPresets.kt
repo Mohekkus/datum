@@ -1,9 +1,9 @@
-package cc.shinemoon.datum.utility.preset
+package cc.shinemoon.datumabase.model.utility
 
-import cc.shinemoon.datum.model.raw.GeometryRules
-import cc.shinemoon.datum.model.raw.ToleranceRules
-import cc.shinemoon.datum.model.raw.TopologyRules
-import cc.shinemoon.datum.model.raw.preset.PresetModel
+import cc.shinemoon.datumabase.model.data.GeometryRules
+import cc.shinemoon.datumabase.model.data.ToleranceRules
+import cc.shinemoon.datumabase.model.data.TopologyRules
+import cc.shinemoon.datumabase.model.preset.PresetModel
 
 object BuiltinPresets {
 

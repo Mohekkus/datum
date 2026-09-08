@@ -1,4 +1,7 @@
-package cc.shinemoon.datum.model.raw.preset
+package cc.shinemoon.datumabase.model.preset
+
+import cc.shinemoon.datumabase.model.utility.MetricStatus
+import cc.shinemoon.datumabase.model.utility.RuleGroup
 
 data class PresetEvaluation(
     val presetName: String,

@@ -1,4 +1,4 @@
-package cc.shinemoon.datum.model.raw.preset
+package cc.shinemoon.datumabase.model.preset
 
 data class PresetState(
     val preset: PresetModel = PresetModel(),

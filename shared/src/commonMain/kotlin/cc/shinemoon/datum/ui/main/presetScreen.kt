@@ -3,7 +3,6 @@ package cc.shinemoon.datum.ui.main
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,7 +22,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,25 +34,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import cc.shinemoon.datum.model.raw.preset.MetricStatus
-import cc.shinemoon.datum.model.raw.preset.PresetEvaluation
-import cc.shinemoon.datum.model.raw.preset.PresetModel
-import cc.shinemoon.datum.ui.MetricStatusChip
 import cc.shinemoon.datum.ui.main.rules.GeometryRulesScreen
 import cc.shinemoon.datum.ui.main.rules.MassPropertyRulesScreen
 import cc.shinemoon.datum.ui.main.rules.ToleranceRulesScreen
 import cc.shinemoon.datum.ui.main.rules.TopologyRulesScreen
+import cc.shinemoon.datumabase.model.preset.PresetEvaluation
+import cc.shinemoon.datumabase.model.preset.PresetModel
+import cc.shinemoon.datumabase.model.utility.MetricStatus
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Check
-import compose.icons.feathericons.FilePlus
 import compose.icons.feathericons.XCircle
-import kotlinx.serialization.json.Json
 import java.awt.EventQueue
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.FilenameFilter
-
-private val presetJson = Json { ignoreUnknownKeys = true }
 
 @Composable
 fun PresetScreen(
@@ -84,95 +77,46 @@ fun PresetScreen(
             }
             Spacer(Modifier.height(16.dp))
 
-            Column(
-                modifier = Modifier.clickable(onClick = { expanded = !expanded }),
-            ) {
-                // Active preset summary
-                preset?.let { active ->
-                    Text(
-                        text = active.name.ifBlank { "Untitled preset" },
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    if (active.description.isNotBlank()) {
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = active.description,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                } ?: Text(
-                    text = "No preset loaded.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            if (expanded) {
-                // Overall verdict chip
-                evaluation?.let { result ->
-                    Spacer(Modifier.height(12.dp))
-                    val passed = result.overall == MetricStatus.PASS
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = if (passed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
+            // Overall verdict chip
+            evaluation?.let { result ->
+                Spacer(Modifier.height(12.dp))
+                val passed = result.overall == MetricStatus.PASS
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = if (passed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = if (passed) FeatherIcons.Check else FeatherIcons.XCircle,
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp),
-                                tint = if (passed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                text = "${if (passed) "PASS" else "FAIL"} · ${result.passedCount}/${result.checks.size} checks",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = if (passed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
-                            )
-                        }
-                    }
-                    if (result.checks.isNotEmpty()) {
-                        Spacer(Modifier.height(6.dp))
-                        SegmentedProgressBar(
-                            passed = result.passedCount,
-                            failed = result.checks.size - result.passedCount,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(6.dp)
-                                .clip(RoundedCornerShape(3.dp)),
+                        Icon(
+                            imageVector = if (passed) FeatherIcons.Check else FeatherIcons.XCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = if (passed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = "${if (passed) "PASS" else "FAIL"} · ${result.passedCount}/${result.checks.size} checks",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = if (passed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
                         )
                     }
+                }
+                if (result.checks.isNotEmpty()) {
+                    Spacer(Modifier.height(6.dp))
+                    SegmentedProgressBar(
+                        passed = result.passedCount,
+                        failed = result.checks.size - result.passedCount,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(3.dp)),
+                    )
                 }
 
                 Spacer(Modifier.height(16.dp))
-
-                OutlinedButton(onClick = {
-                    browseForPresetFile { content ->
-                        if (content == null) return@browseForPresetFile
-                        val result = runCatching { presetJson.decodeFromString<PresetModel>(content) }
-                        result.fold(
-                            onSuccess = { loaded ->
-                                parseError = null
-                                onPresetLoaded(loaded)
-                            },
-                            onFailure = { cause ->
-                                parseError = cause.message ?: "Could not read the selected preset file."
-                            }
-                        )
-                    }
-                }) {
-                    Icon(FeatherIcons.FilePlus, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Load preset (.json)")
-                }
-
             }
 
             parseError?.let { message ->
@@ -184,18 +128,10 @@ fun PresetScreen(
                 )
             }
 
-            Spacer(Modifier.height(16.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Spacer(Modifier.height(12.dp))
 
             // Rule configuration
             preset?.let { active ->
-                Text(
-                    text = "CONFIGURE",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
                 Spacer(Modifier.height(4.dp))
                 TopologyRulesScreen(
                     rules = active.topologyRules,
@@ -222,15 +158,6 @@ fun PresetScreen(
                 )
             }
         }
-    }
-}
-
-private fun browseForPresetFile(onContentRead: (String?) -> Unit) {
-    EventQueue.invokeLater {
-        val dialog = FileDialog(null as Frame?, "Open preset", FileDialog.LOAD)
-        dialog.filenameFilter = FilenameFilter { _, name -> name.endsWith(".json", ignoreCase = true) }
-        dialog.isVisible = true
-        onContentRead(dialog.files.singleOrNull()?.readText())
     }
 }
 

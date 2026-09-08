@@ -24,10 +24,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import cc.shinemoon.datum.model.raw.GeometryRules
-import cc.shinemoon.datum.model.raw.preset.PresetEvaluation
-import cc.shinemoon.datum.model.raw.preset.RuleGroup
 import cc.shinemoon.datum.ui.MetricStatusChip
+import cc.shinemoon.datumabase.model.data.GeometryRules
+import cc.shinemoon.datumabase.model.preset.PresetEvaluation
+import cc.shinemoon.datumabase.model.utility.RuleGroup
 import cc.shinemoon.occt.classifier.CurveType
 import cc.shinemoon.occt.classifier.SurfaceType
 import compose.icons.FeatherIcons

@@ -10,8 +10,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import cc.shinemoon.datum.model.raw.preset.PresetModel
 import cc.shinemoon.datum.viewmodel.PresetViewModel
+import cc.shinemoon.datumabase.model.preset.PresetModel
 import cc.shinemoon.occt.model.OcctInspectionData
 
 @Composable

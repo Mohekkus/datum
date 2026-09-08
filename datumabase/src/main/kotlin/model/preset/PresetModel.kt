@@ -1,9 +1,9 @@
-package cc.shinemoon.datum.model.raw.preset
+package cc.shinemoon.datumabase.model.preset
 
-import cc.shinemoon.datum.model.raw.GeometryRules
-import cc.shinemoon.datum.model.raw.MassPropertyRules
-import cc.shinemoon.datum.model.raw.ToleranceRules
-import cc.shinemoon.datum.model.raw.TopologyRules
+import cc.shinemoon.datumabase.model.data.GeometryRules
+import cc.shinemoon.datumabase.model.data.MassPropertyRules
+import cc.shinemoon.datumabase.model.data.ToleranceRules
+import cc.shinemoon.datumabase.model.data.TopologyRules
 import kotlinx.serialization.Serializable
 
 @Serializable

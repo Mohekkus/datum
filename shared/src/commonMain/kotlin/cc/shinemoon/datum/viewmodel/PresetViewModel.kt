@@ -1,9 +1,9 @@
 package cc.shinemoon.datum.viewmodel
 
 import androidx.lifecycle.ViewModel
-import cc.shinemoon.datum.model.raw.preset.PresetEvaluation
-import cc.shinemoon.datum.model.raw.preset.PresetModel
 import cc.shinemoon.datum.utility.preset.PresetEvaluator
+import cc.shinemoon.datumabase.model.preset.PresetEvaluation
+import cc.shinemoon.datumabase.model.preset.PresetModel
 import cc.shinemoon.occt.model.OcctInspectionData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

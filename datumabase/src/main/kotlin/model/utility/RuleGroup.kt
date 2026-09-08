@@ -1,4 +1,4 @@
-package cc.shinemoon.datum.model.raw.preset
+package cc.shinemoon.datumabase.model.utility
 
 enum class RuleGroup(val label: String) {
     TOPOLOGY("Topology"),
