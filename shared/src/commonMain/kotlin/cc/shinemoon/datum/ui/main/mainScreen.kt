@@ -10,9 +10,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import cc.shinemoon.datum.ui.TextInputDialog
 import cc.shinemoon.datum.viewmodel.PresetViewModel
 import cc.shinemoon.datumabase.model.preset.PresetModel
-import cc.shinemoon.occt.model.OcctInspectionData
+import cc.shinemoon.occt.model.sanitize.OcctInspectionData
 
 @Composable
 fun MainScreen(
@@ -20,6 +21,8 @@ fun MainScreen(
     onClear: () -> Unit,
 ) {
     var barToggled: Boolean by remember { mutableStateOf(false) }
+    var savingPresets: Boolean by remember { mutableStateOf(false) }
+
     val viewmodel = remember { PresetViewModel(data) }
 
     val preset by viewmodel.preset.collectAsState()
@@ -47,6 +50,27 @@ fun MainScreen(
             viewmodel.loadPreset(name)
             viewmodel.evaluate()
         }
+
+        override fun onDeletePreset(name: String) {
+            viewmodel
+        }
+    }
+
+    if (savingPresets) {
+        TextInputDialog(
+            onConfirm = { name ->
+                viewmodel.apply {
+                    checkNameDuplicate(name) {
+                        if (!it)
+                            savePreset(name, preset)
+                    }
+                }
+                savingPresets = false
+            },
+            onDismissRequest = {
+                savingPresets = false
+            }
+        )
     }
 
     Row(
@@ -73,8 +97,8 @@ fun MainScreen(
                         viewmodel.evaluate()
                     }
 
-                    override fun onSavingCurrentPreset(name: String) {
-                        TODO("Not yet implemented")
+                    override fun onSavingCurrentPreset() {
+                        savingPresets = true
                     }
                 }
             )

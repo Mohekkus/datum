@@ -1,4 +1,4 @@
-package cc.shinemoon.occt.model
+package cc.shinemoon.occt.model.sanitize
 
 data class TopologicalState(
     val isBRepValid: Boolean,

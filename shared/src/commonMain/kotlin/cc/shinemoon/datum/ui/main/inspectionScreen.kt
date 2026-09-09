@@ -16,15 +16,15 @@ import cc.shinemoon.datum.ui.MetricStatusChip
 import cc.shinemoon.datumabase.model.preset.PresetEvaluation
 import cc.shinemoon.datumabase.model.preset.PresetModel
 import cc.shinemoon.datumabase.model.utility.MetricStatus
-import cc.shinemoon.occt.model.BoundingBox
-import cc.shinemoon.occt.model.EdgeRecord
-import cc.shinemoon.occt.model.FaceRecord
-import cc.shinemoon.occt.model.MassProperties
-import cc.shinemoon.occt.model.ModelPlacement
-import cc.shinemoon.occt.model.OcctInspectionData
-import cc.shinemoon.occt.model.ToleranceStatistics
-import cc.shinemoon.occt.model.TopologicalState
-import cc.shinemoon.occt.model.TopologyCounts
+import cc.shinemoon.occt.model.sanitize.BoundingBox
+import cc.shinemoon.occt.model.sanitize.EdgeRecord
+import cc.shinemoon.occt.model.sanitize.FaceRecord
+import cc.shinemoon.occt.model.sanitize.MassProperties
+import cc.shinemoon.occt.model.sanitize.ModelPlacement
+import cc.shinemoon.occt.model.sanitize.OcctInspectionData
+import cc.shinemoon.occt.model.sanitize.ToleranceStatistics
+import cc.shinemoon.occt.model.sanitize.TopologicalState
+import cc.shinemoon.occt.model.sanitize.TopologyCounts
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.AlertTriangle
 import compose.icons.feathericons.ArrowLeft
@@ -48,6 +48,7 @@ interface InspectionInterface {
     fun onPresetModified(preset: PresetModel)
     fun savedPresetList(): List<String>
     fun onLoadPreset(name: String)
+    fun onDeletePreset(name: String)
 }
 
 @Composable
@@ -93,19 +94,23 @@ fun InspectionScreen(
                 )
             }
 
-            Spacer(Modifier.weight(1f))
             val savedPresetList = listener.savedPresetList()
             if (savedPresetList.isEmpty()) {
+                Spacer(Modifier.weight(1f))
                 PresetButton { listener.onToggleSidebar() }
             } else {
                 var isExpanded by remember { mutableStateOf(false) }
 
                 @OptIn(ExperimentalMaterial3Api::class)
                 ExposedDropdownMenuBox(
+                    modifier = Modifier.weight(1f),
                     expanded = isExpanded,
-                    onExpandedChange = { isExpanded = !isExpanded },
+                    onExpandedChange = { },
                 ) {
-                    PresetButton { isExpanded != isExpanded }
+                    Row {
+                        Spacer(Modifier.weight(1f))
+                        PresetButton { isExpanded = !isExpanded }
+                    }
 
                     ExposedDropdownMenu(
                         expanded = isExpanded,
@@ -113,7 +118,18 @@ fun InspectionScreen(
                     ) {
                         savedPresetList.forEach { item ->
                             DropdownMenuItem(
-                                text = { Text(text = item) },
+                                text = {
+                                    Row {
+                                        Text(text = item)
+                                        IconButton(
+                                            onClick = {
+
+                                            }
+                                        ) {
+
+                                        }
+                                    }
+                                },
                                 onClick = {
                                     listener.onLoadPreset(item)
                                 }

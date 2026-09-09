@@ -21,6 +21,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import cc.shinemoon.datum.ui.TextInputDialog
 import cc.shinemoon.datum.ui.main.rules.GeometryRulesScreen
 import cc.shinemoon.datum.ui.main.rules.MassPropertyRulesScreen
 import cc.shinemoon.datum.ui.main.rules.ToleranceRulesScreen
@@ -45,14 +47,10 @@ import compose.icons.FeatherIcons
 import compose.icons.feathericons.Check
 import compose.icons.feathericons.Save
 import compose.icons.feathericons.XCircle
-import java.awt.EventQueue
-import java.awt.FileDialog
-import java.awt.Frame
-import java.io.FilenameFilter
 
 interface PresetInterface {
     fun onPresetUpdate(presetModel: PresetModel)
-    fun onSavingCurrentPreset(name: String)
+    fun onSavingCurrentPreset()
 }
 
 @Composable
@@ -67,28 +65,34 @@ fun PresetScreen(
         modifier = Modifier
             .animateContentSize()
             .fillMaxSize()
-            .padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .padding(start = 16.dp),
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Rules", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.weight(1f))
-                Icon(
-                    imageVector = FeatherIcons.Save,
-                    contentDescription = "Saving rules",
-                    modifier = Modifier.clickable {
-                         presetInterface.onSavingCurrentPreset(
-                             "WIP"
-                         )
+                IconButton(
+                    onClick = {
+                        presetInterface.onSavingCurrentPreset()
                     }
-                )
+                ) {
+                    Icon(
+                        imageVector = FeatherIcons.Save,
+                        contentDescription = "Saving rules",
+                        modifier = Modifier
+                            .size(18.dp)
+                    )
+                }
             }
-            Spacer(Modifier.height(16.dp))
+
+            if (preset?.name?.isNotEmpty() == true) {
+                Text(preset.name, style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+            }
 
             evaluation?.let { result ->
                 Spacer(Modifier.height(12.dp))

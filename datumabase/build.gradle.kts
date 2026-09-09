@@ -22,7 +22,9 @@ dependencies {
     implementation(libs.androidx.sqlite.bundled.jvm)
     implementation(libs.androidx.room3.runtime.jvm)
     ksp(libs.androidx.room3.compiler)
+    ksp(libs.dagger.compiler)
     implementation(libs.kotlinx.serializationJson)
+    implementation(libs.dagger)
 }
 
 tasks.test {

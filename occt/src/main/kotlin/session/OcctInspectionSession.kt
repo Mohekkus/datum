@@ -1,74 +1,15 @@
-package cc.shinemoon.occt
+package session
 
+import OcctBridge
+import cc.shinemoon.occt.model.raw.RawOcctModel
 import java.io.Closeable
 import java.nio.file.Files
 import java.nio.file.Path
-import java.security.MessageDigest
-
-data class RawOcctModel(
-    val stepMetadata: Array<String>,
-    val unitName: String,
-    val unitScaleToMm: Double,
-    val shapeType: Int,
-    val topologyCounts: IntArray,
-    val shapeValid: Boolean,
-    val shapeClosed: Boolean,
-    val manifoldStats: IntArray,
-    val shapeFaults: Array<String>,
-    val boundingBox: DoubleArray,
-    val placement: DoubleArray,
-    val volume: Double,
-    val surfaceArea: Double,
-    val totalEdgeLength: Double,
-    val centerOfMass: DoubleArray?,
-    val inertiaProperties: DoubleArray?,
-    val vertexRecords: DoubleArray,
-    val edgeRecords: DoubleArray,
-    val faceRecords: DoubleArray,
-    val faceBoundaryEdgeMap: IntArray,
-    val tolerances: DoubleArray,
-    val shapeTreeRecords: IntArray,
-    val meshVertices: FloatArray?,
-    val meshNormals: FloatArray?,
-    val meshTriangles: IntArray?
-)
 
 
-object OcctDllResolver {
-    private const val RESOURCE_PATH = "/native/libOcctStatic.dll"
-
-    fun resolve(): Path {
-        System.getProperty("occt.dll.path")?.let { return Path.of(it) }
-
-        val devPath = Path.of("native/libOcctStatic.dll")
-        if (Files.isRegularFile(devPath)) return devPath
-
-        return extractFromResources()
-    }
-
-    private fun extractFromResources(): Path {
-        val bytes = OcctDllResolver::class.java.getResourceAsStream(RESOURCE_PATH)
-            ?.use { it.readBytes() }
-            ?: error("DLL resource not found on classpath: $RESOURCE_PATH")
-
-        val hash = MessageDigest.getInstance("SHA-256")
-            .digest(bytes)
-            .joinToString("") { "%02x".format(it) }
-            .take(16)
-
-        val cacheDir = Path.of(System.getProperty("java.io.tmpdir"), "occt-bridge-$hash")
-        val cachedDll = cacheDir.resolve("libOcctStatic.dll")
-
-        if (!Files.isRegularFile(cachedDll)) {
-            Files.createDirectories(cacheDir)
-            Files.write(cachedDll, bytes)
-        }
-        return cachedDll
-    }
-}
-
+private val DirectOcctNative = OcctBridge
 /** Direct DLL-backed API for embedding in an IntelliJ/Kotlin application. */
-class OcctInspectionSession(nativeDll: Path) : Closeable {
+internal class OcctInspectionSession(nativeDll: Path) : Closeable {
     private var handle: Long
 
     init {
@@ -93,6 +34,10 @@ class OcctInspectionSession(nativeDll: Path) : Closeable {
     private fun DoubleArray.requireSizeOrEmpty(field: String, expected: Int): DoubleArray {
         if (isNotEmpty() && size != expected) throw OcctDataException(field, expected, size)
         return this
+    }
+
+    fun check() {
+        handle
     }
 
     fun inspect(stepFile: Path, performTessellation: Boolean = true): RawOcctModel {
@@ -157,54 +102,4 @@ class OcctInspectionSession(nativeDll: Path) : Closeable {
             handle = 0L
         }
     }
-}
-
-private val DirectOcctNative = OcctBridge
-
-private object OcctBridge {
-    private var loadedDll: String? = null
-
-    fun load(nativeDll: Path) {
-        val absolutePath = nativeDll.toAbsolutePath().toString()
-        if (loadedDll == null) {
-            System.load(absolutePath)
-            loadedDll = absolutePath
-        } else {
-            check(loadedDll == absolutePath) {
-                "A different OCCT bridge DLL is already loaded: $loadedDll"
-            }
-        }
-    }
-
-    @JvmStatic external fun createContext(): Long
-    @JvmStatic external fun destroyContext(handle: Long)
-    @JvmStatic external fun loadStep(handle: Long, path: String): Int
-    @JvmStatic external fun transferRoots(handle: Long): Int
-    @JvmStatic external fun hasTransferredShape(handle: Long): Boolean
-    @JvmStatic external fun getTransferredShapeType(handle: Long): Int
-    @JvmStatic external fun getStepMetadata(handle: Long): Array<String>?
-    @JvmStatic external fun getModelUnitName(handle: Long): String
-    @JvmStatic external fun getModelUnitScale(): Double
-    @JvmStatic external fun getTopologyCounts(handle: Long): IntArray?
-    @JvmStatic external fun checkShapeValidity(handle: Long): Boolean
-    @JvmStatic external fun isShapeClosed(handle: Long): Boolean
-    @JvmStatic external fun getEdgeManifoldStats(handle: Long): IntArray?
-    @JvmStatic external fun getShapeFaults(handle: Long): Array<String>?
-    @JvmStatic external fun getBoundingBox(handle: Long): DoubleArray?
-    @JvmStatic external fun getModelPlacement(handle: Long): DoubleArray?
-    @JvmStatic external fun getVolume(handle: Long): Double
-    @JvmStatic external fun getSurfaceArea(handle: Long): Double
-    @JvmStatic external fun getTotalEdgeLength(handle: Long): Double
-    @JvmStatic external fun getCenterOfMass(handle: Long): DoubleArray?
-    @JvmStatic external fun getInertiaProperties(handle: Long): DoubleArray?
-    @JvmStatic external fun getVertexRecords(handle: Long): DoubleArray?
-    @JvmStatic external fun getDetailedEdgeRecords(handle: Long): DoubleArray?
-    @JvmStatic external fun getDetailedFaceRecords(handle: Long): DoubleArray?
-    @JvmStatic external fun getFaceBoundaryEdgeMap(handle: Long): IntArray?
-    @JvmStatic external fun getTolerances(handle: Long): DoubleArray?
-    @JvmStatic external fun getShapeTreeRecords(handle: Long): IntArray?
-    @JvmStatic external fun tessellate(handle: Long, linearDeflection: Double, angularDeflection: Double): Boolean
-    @JvmStatic external fun getMeshVertices(handle: Long): FloatArray?
-    @JvmStatic external fun getMeshNormals(handle: Long): FloatArray?
-    @JvmStatic external fun getMeshTriangles(handle: Long): IntArray?
 }

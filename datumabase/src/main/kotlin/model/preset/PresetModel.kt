@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PresetModel(
-    val id: String = "",
-    val name: String = "",
+    var id: String = "",
+    var name: String = "",
     val description: String = "",
     val category: String = "Custom",
     val topologyRules: TopologyRules = TopologyRules(),

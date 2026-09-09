@@ -8,14 +8,8 @@ import cc.shinemoon.datumabase.model.preset.PresetModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-private fun getDatabase(): AppDatabase {
+internal fun getDatabase(): AppDatabase {
     return DatabaseEngine.getDatabase<AppDatabase>()
-}
-
-private fun launch(block: suspend () -> Unit) {
-    getDatabase().getCoroutineScope().launch {
-        block()
-    }
 }
 
 internal fun getPreset(): PresetDao {
@@ -32,9 +26,12 @@ suspend fun getAllPresetNames(): MutableList<String> {
     return getPreset().getAll().map { it.name }.toMutableList()
 }
 
-suspend fun getPresetByName(name: String): PresetModel {
-    val entity = getPreset().getByName(name)
-    return Json.decodeFromString<PresetModel>(entity.rulesString)
+suspend fun getPresetByName(name: String): PresetModel? {
+    getPreset().getByName(name)?.let {
+        return Json.decodeFromString<PresetModel>(it.rulesString)
+    } ?: run {
+        return null
+    }
 }
 
 suspend fun saveIntoPresets(name: String, preset: PresetModel) {
@@ -47,6 +44,6 @@ suspend fun saveIntoPresets(name: String, preset: PresetModel) {
     )
 }
 
-suspend fun removeFromPresets(name: String) {
+suspend fun deleteFromPresets(name: String) {
     getPreset().delete(name)
 }

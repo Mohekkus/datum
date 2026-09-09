@@ -1,22 +1,21 @@
-package cc.shinemoon.occt
-
 import cc.shinemoon.occt.classifier.CurveType
 import cc.shinemoon.occt.classifier.ShapeType
 import cc.shinemoon.occt.classifier.SurfaceType
-import cc.shinemoon.occt.model.BoundingBox
-import cc.shinemoon.occt.model.EdgeRecord
-import cc.shinemoon.occt.model.FaceRecord
-import cc.shinemoon.occt.model.InertiaTensor
-import cc.shinemoon.occt.model.MassProperties
-import cc.shinemoon.occt.model.Metadata
-import cc.shinemoon.occt.model.ModelPlacement
-import cc.shinemoon.occt.model.OcctInspectionData
-import cc.shinemoon.occt.model.ShapeHierarchyNode
-import cc.shinemoon.occt.model.ToleranceStatistics
-import cc.shinemoon.occt.model.TopologicalState
-import cc.shinemoon.occt.model.TopologyCounts
-import cc.shinemoon.occt.model.TriangleMesh
-import cc.shinemoon.occt.model.VertexRecord
+import cc.shinemoon.occt.model.raw.RawOcctModel
+import cc.shinemoon.occt.model.sanitize.BoundingBox
+import cc.shinemoon.occt.model.sanitize.EdgeRecord
+import cc.shinemoon.occt.model.sanitize.FaceRecord
+import cc.shinemoon.occt.model.sanitize.InertiaTensor
+import cc.shinemoon.occt.model.sanitize.MassProperties
+import cc.shinemoon.occt.model.sanitize.Metadata
+import cc.shinemoon.occt.model.sanitize.ModelPlacement
+import cc.shinemoon.occt.model.sanitize.OcctInspectionData
+import cc.shinemoon.occt.model.sanitize.ShapeHierarchyNode
+import cc.shinemoon.occt.model.sanitize.ToleranceStatistics
+import cc.shinemoon.occt.model.sanitize.TopologicalState
+import cc.shinemoon.occt.model.sanitize.TopologyCounts
+import cc.shinemoon.occt.model.sanitize.TriangleMesh
+import cc.shinemoon.occt.model.sanitize.VertexRecord
 import kotlin.collections.orEmpty
 import kotlin.collections.set
 

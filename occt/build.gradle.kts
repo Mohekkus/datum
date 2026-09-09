@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.dagger)
     testImplementation(kotlin("test"))
 }
 

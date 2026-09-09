@@ -9,9 +9,9 @@ import cc.shinemoon.datumabase.model.preset.PresetModel
 import cc.shinemoon.datumabase.model.preset.RuleCheck
 import cc.shinemoon.datumabase.model.utility.MetricStatus
 import cc.shinemoon.datumabase.model.utility.RuleGroup
-import cc.shinemoon.occt.model.MassProperties
-import cc.shinemoon.occt.model.OcctInspectionData
-import cc.shinemoon.occt.model.ToleranceStatistics
+import cc.shinemoon.occt.model.sanitize.MassProperties
+import cc.shinemoon.occt.model.sanitize.OcctInspectionData
+import cc.shinemoon.occt.model.sanitize.ToleranceStatistics
 
 object PresetEvaluator {
 

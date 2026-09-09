@@ -26,10 +26,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import cc.shinemoon.occt.OcctDllResolver
-import cc.shinemoon.occt.OcctInspectionSession
-import cc.shinemoon.occt.model.OcctInspectionData
-import cc.shinemoon.occt.toStructuredModel
+import OcctDllResolver
+import session.OcctInspectionSession
+import cc.shinemoon.occt.model.sanitize.OcctInspectionData
+import toStructuredModel
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.FilePlus
 import java.io.File

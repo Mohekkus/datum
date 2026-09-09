@@ -16,7 +16,7 @@ internal interface PresetDao {
     suspend fun getById(id: Long): PresetEntity
 
     @Query("select * from user_preset where name = :name")
-    suspend fun getByName(name: String): PresetEntity
+    suspend fun getByName(name: String): PresetEntity?
 
     @Query("select count(*) from user_preset")
     suspend fun count(): Long

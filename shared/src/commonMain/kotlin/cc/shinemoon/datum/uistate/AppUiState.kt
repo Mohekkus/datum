@@ -1,6 +1,6 @@
 package cc.shinemoon.datum.uistate
 
-import cc.shinemoon.occt.model.OcctInspectionData
+import cc.shinemoon.occt.model.sanitize.OcctInspectionData
 
 data class AppUiState(
     val inspectionData: OcctInspectionData? = null,
