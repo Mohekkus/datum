@@ -1,4 +1,4 @@
-package cc.shinemoon.occt.model.raw
+package model
 
 data class RawOcctModel(
     val stepMetadata: Array<String>,

@@ -1,4 +1,4 @@
-package cc.shinemoon.occt.model.sanitize
+package cc.shinemoon.datum.model.occt
 
 data class ToleranceStatistics(
     val minVertexTol: Double,

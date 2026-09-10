@@ -26,10 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import OcctDllResolver
-import session.OcctInspectionSession
-import cc.shinemoon.occt.model.sanitize.OcctInspectionData
-import toStructuredModel
+import cc.shinemoon.datum.model.occt.OcctInspectionData
+import cc.shinemoon.datum.utility.preset.DragListener
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.FilePlus
 import java.io.File
@@ -65,33 +63,24 @@ fun DropZone(
                 // drag-and-drop operations are enabled unconditionally.
                 shouldStartDragAndDrop = { true },
                 target = operation(
-                    object : OnDragListener {
-                        override fun onStart() {
-                            println("onStart")
-                        }
-
-                        override fun onEnded() {
-                            println("onEnded")
+                    object : DragListener {
+                        override fun onInvalidFile() {
+                            // TODO
                         }
 
                         override fun onValidFile(file: File) {
-                            println("onValidFile")
-                            OcctInspectionSession(OcctDllResolver.resolve()).use {
-                                val path = Path.of(file.absolutePath)
-
-                                if (Files.exists(path) && Files.isReadable(path)) {
-                                    println("File is ready to be loaded.");
-                                } else {
-                                    System.err.println("File not found or cannot be read.");
-                                }
-
-                                val inspectionData = it.inspect(path).toStructuredModel()
-                                onInspectionData(inspectionData)
-                            }
-                        }
-
-                        override fun onInvalidFile() {
-                            println("onInvalidFile")
+//                            OcctInspectionSession(OcctDllResolver.resolve()).use {
+//                                val path = Path.of(file.absolutePath)
+//
+//                                if (Files.exists(path) && Files.isReadable(path)) {
+//                                    println("File is ready to be loaded.");
+//                                } else {
+//                                    System.err.println("File not found or cannot be read.");
+//                                }
+//
+//                                val inspectionData = it.inspect(path).toStructuredModel()
+//                                onInspectionData(inspectionData)
+//                            }
                         }
                     }
                 )

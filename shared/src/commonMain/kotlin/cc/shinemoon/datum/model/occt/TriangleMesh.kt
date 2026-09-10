@@ -1,4 +1,4 @@
-package cc.shinemoon.occt.model.sanitize
+package cc.shinemoon.datum.model.occt
 
 import java.io.File
 import java.util.Locale

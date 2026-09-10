@@ -1,6 +1,7 @@
-package cc.shinemoon.occt.model.sanitize
+package cc.shinemoon.datum.model.occt
 
-import cc.shinemoon.occt.classifier.*
+import cc.shinemoon.datum.types.occt.ShapeType
+
 
 data class OcctInspectionData(
     val rootShapeType: ShapeType,

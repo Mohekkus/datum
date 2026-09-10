@@ -1,18 +1,33 @@
 package session
 
-import OcctBridge
-import cc.shinemoon.occt.model.raw.RawOcctModel
+import bridge.OcctBridge
+import bridge.OcctDllResolver
+import model.RawOcctModel
 import java.io.Closeable
 import java.nio.file.Files
 import java.nio.file.Path
+import javax.inject.Inject
+import javax.inject.Singleton
 
+
+class OcctDataException(field: String, expected: Int, actual: Int) :
+    RuntimeException("Malformed native data for '$field': expected $expected elements, got $actual")
 
 private val DirectOcctNative = OcctBridge
-/** Direct DLL-backed API for embedding in an IntelliJ/Kotlin application. */
-internal class OcctInspectionSession(nativeDll: Path) : Closeable {
-    private var handle: Long
 
-    init {
+/** Direct DLL-backed API for embedding in an IntelliJ/Kotlin application. */
+@Singleton
+internal class OcctInspectionSession @Inject constructor(
+    private val dllResolver: OcctDllResolver
+) : Closeable {
+    private var handle: Long = 0L
+    private val nativeDll: Path
+        get() {
+            return dllResolver.resolve()
+        }
+
+
+    fun open() {
         require(Files.isRegularFile(nativeDll)) {
             "Native OCCT bridge DLL does not exist: ${nativeDll.toAbsolutePath()}"
         }
@@ -23,8 +38,6 @@ internal class OcctInspectionSession(nativeDll: Path) : Closeable {
 
     val isOpen: Boolean
         get() = handle != 0L
-    class OcctDataException(field: String, expected: Int, actual: Int) :
-        RuntimeException("Malformed native data for '$field': expected $expected elements, got $actual")
 
     private fun IntArray.requireSizeOrEmpty(field: String, expected: Int): IntArray {
         if (isNotEmpty() && size != expected) throw OcctDataException(field, expected, size)
@@ -36,12 +49,9 @@ internal class OcctInspectionSession(nativeDll: Path) : Closeable {
         return this
     }
 
-    fun check() {
-        handle
-    }
-
     fun inspect(stepFile: Path, performTessellation: Boolean = true): RawOcctModel {
-        check(isOpen) { "OCCT inspection session is closed" }
+        if(!isOpen) open()
+
         require(Files.isRegularFile(stepFile)) {
             "STEP file does not exist: ${stepFile.toAbsolutePath()}"
         }

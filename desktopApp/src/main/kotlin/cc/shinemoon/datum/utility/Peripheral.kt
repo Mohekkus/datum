@@ -1,23 +1,23 @@
-import cc.shinemoon.occt.classifier.CurveType
-import cc.shinemoon.occt.classifier.ShapeType
-import cc.shinemoon.occt.classifier.SurfaceType
-import cc.shinemoon.occt.model.raw.RawOcctModel
-import cc.shinemoon.occt.model.sanitize.BoundingBox
-import cc.shinemoon.occt.model.sanitize.EdgeRecord
-import cc.shinemoon.occt.model.sanitize.FaceRecord
-import cc.shinemoon.occt.model.sanitize.InertiaTensor
-import cc.shinemoon.occt.model.sanitize.MassProperties
-import cc.shinemoon.occt.model.sanitize.Metadata
-import cc.shinemoon.occt.model.sanitize.ModelPlacement
-import cc.shinemoon.occt.model.sanitize.OcctInspectionData
-import cc.shinemoon.occt.model.sanitize.ShapeHierarchyNode
-import cc.shinemoon.occt.model.sanitize.ToleranceStatistics
-import cc.shinemoon.occt.model.sanitize.TopologicalState
-import cc.shinemoon.occt.model.sanitize.TopologyCounts
-import cc.shinemoon.occt.model.sanitize.TriangleMesh
-import cc.shinemoon.occt.model.sanitize.VertexRecord
-import kotlin.collections.orEmpty
-import kotlin.collections.set
+package cc.shinemoon.datum.utility
+
+import model.RawOcctModel
+import cc.shinemoon.datum.model.occt.BoundingBox
+import cc.shinemoon.datum.model.occt.EdgeRecord
+import cc.shinemoon.datum.model.occt.FaceRecord
+import cc.shinemoon.datum.model.occt.InertiaTensor
+import cc.shinemoon.datum.model.occt.MassProperties
+import cc.shinemoon.datum.model.occt.Metadata
+import cc.shinemoon.datum.model.occt.ModelPlacement
+import cc.shinemoon.datum.model.occt.OcctInspectionData
+import cc.shinemoon.datum.model.occt.ShapeHierarchyNode
+import cc.shinemoon.datum.model.occt.ToleranceStatistics
+import cc.shinemoon.datum.model.occt.TopologicalState
+import cc.shinemoon.datum.model.occt.TopologyCounts
+import cc.shinemoon.datum.model.occt.TriangleMesh
+import cc.shinemoon.datum.model.occt.VertexRecord
+import cc.shinemoon.datum.types.occt.CurveType
+import cc.shinemoon.datum.types.occt.ShapeType
+import cc.shinemoon.datum.types.occt.SurfaceType
 
 // Alias for semantic clarity
 typealias OcctModel = OcctInspectionData
@@ -150,13 +150,15 @@ private fun DoubleArray.toListOfVertexRecord(): List<VertexRecord> {
     val vStride = 5
     for (i in 0 until (this.size / vStride)) {
         val offset = i * vStride
-        vertexList.add(VertexRecord(
-            vertexId = this[offset].toInt(),
-            x = this[offset + 1],
-            y = this[offset + 2],
-            z = this[offset + 3],
-            tolerance = this[offset + 4],
-        ))
+        vertexList.add(
+            VertexRecord(
+                vertexId = this[offset].toInt(),
+                x = this[offset + 1],
+                y = this[offset + 2],
+                z = this[offset + 3],
+                tolerance = this[offset + 4],
+            )
+        )
     }
     return vertexList
 }
@@ -183,24 +185,26 @@ private fun DoubleArray.toListOfEdgeRecord(
     for (i in 0 until (this.size / eStride)) {
         val offset = i * eStride
         val eId = this[offset].toInt()
-        edgeList.add(EdgeRecord(
-            edgeId = eId,
-            curveType = CurveType.fromValue(this[offset + 1].toInt()),
-            length = this[offset + 2],
-            tolerance = this[offset + 3],
-            startVertexId = this[offset + 4].toInt(),
-            endVertexId = this[offset + 5].toInt(),
-            isDegenerated = this[offset + 6] > 0.5,
-            isOrientationReversed = this[offset + 7] > 0.5,
-            adjacentFaceIds = faceBoundaryEdgeMap[eId] ?: emptyList(),
-            origin = Triple(this[offset + 8], this[offset + 9], this[offset + 10]),
-            direction = Triple(this[offset + 11], this[offset + 12], this[offset + 13]),
-            radius = this[offset + 14],
-            degree = this[offset + 15].toInt(),
-            poleCount = this[offset + 16].toInt(),
-            knotCount = this[offset + 17].toInt(),
-            isClosed = this[offset + 18] > 0.5
-        ))
+        edgeList.add(
+            EdgeRecord(
+                edgeId = eId,
+                curveType = CurveType.fromValue(this[offset + 1].toInt()),
+                length = this[offset + 2],
+                tolerance = this[offset + 3],
+                startVertexId = this[offset + 4].toInt(),
+                endVertexId = this[offset + 5].toInt(),
+                isDegenerated = this[offset + 6] > 0.5,
+                isOrientationReversed = this[offset + 7] > 0.5,
+                adjacentFaceIds = faceBoundaryEdgeMap[eId] ?: emptyList(),
+                origin = Triple(this[offset + 8], this[offset + 9], this[offset + 10]),
+                direction = Triple(this[offset + 11], this[offset + 12], this[offset + 13]),
+                radius = this[offset + 14],
+                degree = this[offset + 15].toInt(),
+                poleCount = this[offset + 16].toInt(),
+                knotCount = this[offset + 17].toInt(),
+                isClosed = this[offset + 18] > 0.5
+            )
+        )
     }
 
     return edgeList
@@ -285,8 +289,3 @@ private fun toTessellationMesh(
             vertices, normals, triangles
         )
     else null
-
-
-
-
-

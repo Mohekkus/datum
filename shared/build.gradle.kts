@@ -20,7 +20,6 @@ kotlin {
             implementation(libs.compose.icons.feather)
             implementation(libs.kotlinx.coroutinesCore)
 
-            implementation(project(":occt"))
             implementation(project(":datumabase"))
         }
         jvmMain.dependencies {

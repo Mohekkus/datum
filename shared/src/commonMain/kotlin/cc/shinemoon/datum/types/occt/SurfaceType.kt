@@ -1,4 +1,4 @@
-package cc.shinemoon.occt.classifier
+package cc.shinemoon.datum.types.occt
 
 enum class SurfaceType(val value: Int) {
     PLANE(0), CYLINDER(1), CONE(2), SPHERE(3), TORUS(4),

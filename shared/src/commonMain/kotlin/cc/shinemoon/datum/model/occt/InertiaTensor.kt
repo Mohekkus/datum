@@ -1,4 +1,4 @@
-package cc.shinemoon.occt.model.sanitize
+package cc.shinemoon.datum.model.occt
 
 data class InertiaTensor(
     val ixx: Double, val iyy: Double, val izz: Double,

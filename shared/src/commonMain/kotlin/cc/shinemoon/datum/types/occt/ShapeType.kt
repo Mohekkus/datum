@@ -1,4 +1,4 @@
-package cc.shinemoon.occt.classifier
+package cc.shinemoon.datum.types.occt
 
 enum class ShapeType(val value: Int) {
     COMPOUND(0), COMPSOLID(1), SOLID(2), SHELL(3),

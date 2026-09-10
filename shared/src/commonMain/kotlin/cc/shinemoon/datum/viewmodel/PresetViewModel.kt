@@ -9,7 +9,7 @@ import cc.shinemoon.datumabase.getPresetByName
 import cc.shinemoon.datumabase.model.preset.PresetEvaluation
 import cc.shinemoon.datumabase.model.preset.PresetModel
 import cc.shinemoon.datumabase.saveIntoPresets
-import cc.shinemoon.occt.model.sanitize.OcctInspectionData
+import cc.shinemoon.datum.model.occt.OcctInspectionData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

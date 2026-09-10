@@ -3,10 +3,7 @@ package cc.shinemoon.datum.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cc.shinemoon.datum.uistate.AppUiState
-import OcctDllResolver
-import session.OcctInspectionSession
-import cc.shinemoon.occt.model.sanitize.OcctInspectionData
-import toStructuredModel
+import cc.shinemoon.datum.model.occt.OcctInspectionData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

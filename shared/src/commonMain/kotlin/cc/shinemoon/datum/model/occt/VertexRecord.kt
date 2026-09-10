@@ -1,4 +1,4 @@
-package cc.shinemoon.occt.model.sanitize
+package cc.shinemoon.datum.model.occt
 
 data class VertexRecord(
     val vertexId: Int, // 1..N

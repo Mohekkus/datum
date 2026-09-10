@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import cc.shinemoon.datum.ui.TextInputDialog
 import cc.shinemoon.datum.viewmodel.PresetViewModel
 import cc.shinemoon.datumabase.model.preset.PresetModel
-import cc.shinemoon.occt.model.sanitize.OcctInspectionData
+import cc.shinemoon.datum.model.occt.OcctInspectionData
 
 @Composable
 fun MainScreen(

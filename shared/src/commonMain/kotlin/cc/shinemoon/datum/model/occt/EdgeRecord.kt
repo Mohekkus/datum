@@ -1,6 +1,7 @@
-package cc.shinemoon.occt.model.sanitize
+package cc.shinemoon.datum.model.occt
 
-import cc.shinemoon.occt.classifier.CurveType
+import cc.shinemoon.datum.types.occt.CurveType
+
 
 data class EdgeRecord(
     val edgeId: Int, // 1..N

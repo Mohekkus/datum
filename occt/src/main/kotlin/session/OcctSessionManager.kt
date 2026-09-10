@@ -1,30 +1,20 @@
 package session
 
-import OcctDllResolver
+import model.RawOcctModel
+import java.nio.file.Path
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class OcctSessionManager @Inject constructor(
-    private val dllResolver: OcctDllResolver
+class OcctSessionManager @Inject internal constructor(
+    private val session: OcctInspectionSession
 ) {
 
-    private var session: OcctInspectionSession? = null
-
-    private fun initialize(): OcctSessionManager {
-        session = OcctInspectionSession(dllResolver.resolve())
-        return this
+    fun inspect(path: Path): RawOcctModel {
+        return session.inspect(path)
     }
 
     fun close() {
-        session?.close()
+        session.close()
     }
-
-    fun get(): OcctInspectionSession = when {
-            session != null && session?.isOpen == true -> session!!
-            else -> {
-                initialize()
-                session!!
-            }
-        }
 }

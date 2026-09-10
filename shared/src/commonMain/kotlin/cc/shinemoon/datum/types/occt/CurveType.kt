@@ -1,4 +1,4 @@
-package cc.shinemoon.occt.classifier
+package cc.shinemoon.datum.types.occt
 
 enum class CurveType(val value: Int) {
     LINE(0), CIRCLE(1), ELLIPSE(2), HYPERBOLA(3), PARABOLA(4),

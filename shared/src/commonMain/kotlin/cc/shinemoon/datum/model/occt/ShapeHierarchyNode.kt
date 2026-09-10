@@ -1,6 +1,6 @@
-package cc.shinemoon.occt.model.sanitize
+package cc.shinemoon.datum.model.occt
 
-import cc.shinemoon.occt.classifier.ShapeType
+import cc.shinemoon.datum.types.occt.ShapeType
 
 data class ShapeHierarchyNode(
     val treeNodeId: Int,       // Unique tree traversal index

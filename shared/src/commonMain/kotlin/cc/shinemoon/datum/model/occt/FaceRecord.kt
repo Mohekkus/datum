@@ -1,6 +1,7 @@
-package cc.shinemoon.occt.model.sanitize
+package cc.shinemoon.datum.model.occt
 
-import cc.shinemoon.occt.classifier.SurfaceType
+import cc.shinemoon.datum.types.occt.SurfaceType
+
 
 data class FaceRecord(
     val faceId: Int, // 1..N
