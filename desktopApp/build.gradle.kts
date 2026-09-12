@@ -10,6 +10,8 @@ plugins {
 dependencies {
     implementation(project(":shared"))
     implementation(project(":occt"))
+    implementation(project(":database"))
+    implementation(project(":contracts"))
 
     implementation(compose.desktop.currentOs)
     implementation(libs.kotlinx.coroutinesSwing)

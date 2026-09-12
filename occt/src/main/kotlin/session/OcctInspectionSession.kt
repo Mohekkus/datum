@@ -1,17 +1,13 @@
 package session
 
-import bridge.OcctBridge
 import bridge.OcctDllResolver
+import cc.shinemoon.occt.OcctBridge
 import model.RawOcctModel
 import java.io.Closeable
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.inject.Inject
 import javax.inject.Singleton
-
-
-class OcctDataException(field: String, expected: Int, actual: Int) :
-    RuntimeException("Malformed native data for '$field': expected $expected elements, got $actual")
 
 private val DirectOcctNative = OcctBridge
 
@@ -25,7 +21,6 @@ internal class OcctInspectionSession @Inject constructor(
         get() {
             return dllResolver.resolve()
         }
-
 
     fun open() {
         require(Files.isRegularFile(nativeDll)) {

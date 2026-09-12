@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cc.shinemoon.datum.ui.launcher.DropZone
 import cc.shinemoon.datum.ui.main.MainScreen
+import cc.shinemoon.datum.di.viewModelFactory
 import cc.shinemoon.datum.viewmodel.OcctViewModel
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.X
@@ -38,7 +39,7 @@ import compose.icons.feathericons.X
 @Composable
 fun App() {
     MaterialTheme {
-        val viewmodel = viewModel { OcctViewModel() }
+        val viewmodel = viewModel { viewModelFactory.occtViewModel() as OcctViewModel }
         val state by viewmodel.uiState.collectAsState()
         var screen by remember { mutableStateOf<Screen>(Screen.DropZone) }
 

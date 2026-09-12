@@ -1,7 +1,6 @@
-package bridge
+package cc.shinemoon.occt
 
 import java.nio.file.Path
-
 
 internal object OcctBridge {
     private var loadedDll: String? = null

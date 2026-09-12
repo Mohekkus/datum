@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cc.shinemoon.datum.uistate.AppUiState
 import cc.shinemoon.datum.model.occt.OcctInspectionData
+import cc.shinemoon.datum.usecase.OcctUseCase
+import contracts.OcctViewModelContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,14 +14,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.nio.file.Path
+import javax.inject.Inject
 
-class OcctViewModel : ViewModel() {
+class OcctViewModel @Inject constructor(
+    private val occtUseCase: OcctUseCase
+) : ViewModel(), OcctViewModelContract {
 
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
 
-    fun inspect(file: File) {
+    override fun inspect(file: File) {
         if (_uiState.value.isLoading) return
         _uiState.update { it.copy(isLoading = true, error = null) }
 
@@ -28,11 +32,8 @@ class OcctViewModel : ViewModel() {
                 runCatching { inspectFile(file) }.fold(
                     onSuccess = { data -> current.copy(isLoading = false, inspectionData = data) },
                     onFailure = { cause ->
-                        val message = when (cause) {
-                            is OcctInspectionSession.OcctDataException -> "This STEP file produced corrupted inspection data and can't be displayed safely."
-                            else -> cause.message ?: "Failed to inspect ${file.name}"
-                        }
-                        current.copy(isLoading = false, error = message)
+                        println(cause.stackTrace.contentToString())
+                        current.copy(isLoading = false, error = cause.message ?: cause.toString())
                     },
                 )
             }
@@ -48,8 +49,6 @@ class OcctViewModel : ViewModel() {
     }
 
     private suspend fun inspectFile(file: File): OcctInspectionData = withContext(Dispatchers.Default) {
-        OcctInspectionSession(OcctDllResolver.resolve()).use { session ->
-            session.inspect(Path.of(file.absolutePath)).toStructuredModel()
-        }
+        occtUseCase.inspect(file)
     }
 }

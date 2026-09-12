@@ -34,4 +34,5 @@ plugins {
 include(":desktopApp")
 include(":shared")
 include("occt")
-include("datumabase")
+include("database")
+include("contracts")

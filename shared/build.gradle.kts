@@ -20,7 +20,10 @@ kotlin {
             implementation(libs.compose.icons.feather)
             implementation(libs.kotlinx.coroutinesCore)
 
-            implementation(project(":datumabase"))
+            implementation(libs.dagger)
+
+            implementation(project(":database"))
+            implementation(project(":contracts"))
         }
         jvmMain.dependencies {
             implementation(libs.kotlinx.coroutinesSwing)
