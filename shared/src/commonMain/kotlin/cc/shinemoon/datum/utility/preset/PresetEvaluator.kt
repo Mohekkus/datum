@@ -1,14 +1,13 @@
 package cc.shinemoon.datum.utility.preset
 
-import cc.shinemoon.datumabase.model.data.GeometryRules
-import cc.shinemoon.datumabase.model.data.MassPropertyRules
-import cc.shinemoon.datumabase.model.data.ToleranceRules
-import cc.shinemoon.datumabase.model.data.TopologyRules
-import cc.shinemoon.datumabase.model.preset.PresetEvaluation
-import cc.shinemoon.datumabase.model.preset.PresetModel
-import cc.shinemoon.datumabase.model.preset.RuleCheck
-import cc.shinemoon.datumabase.model.utility.MetricStatus
-import cc.shinemoon.datumabase.model.utility.RuleGroup
+import cc.shinemoon.datum.model.preset.GeometryRules
+import cc.shinemoon.datum.model.preset.MassPropertyRules
+import cc.shinemoon.datum.model.preset.ToleranceRules
+import cc.shinemoon.datum.model.preset.TopologyRules
+import cc.shinemoon.datum.model.preset.PresetModel
+import cc.shinemoon.datum.model.preset.RuleCheck
+import cc.shinemoon.datum.types.preset.MetricStatus
+import cc.shinemoon.datum.types.preset.RuleGroup
 import cc.shinemoon.datum.model.occt.MassProperties
 import cc.shinemoon.datum.model.occt.OcctInspectionData
 import cc.shinemoon.datum.model.occt.ToleranceStatistics

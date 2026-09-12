@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
     id("com.google.devtools.ksp") version "2.3.10"
-    alias(libs.plugins.kotlinSerialization)
 }
 
 group = "cc.shinemoon.datumabase"
@@ -23,7 +22,6 @@ dependencies {
     implementation(libs.androidx.room3.runtime.jvm)
     ksp(libs.androidx.room3.compiler)
     ksp(libs.dagger.compiler)
-    implementation(libs.kotlinx.serializationJson)
     implementation(libs.dagger)
 }
 

@@ -5,13 +5,19 @@ import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 
-internal object DatabaseEngine {
+@Singleton
+class DatabaseInitializer @Inject constructor() {
 
     private var db: RoomDatabase? = null
 
-    inline fun <reified T: RoomDatabase> getDatabase(): T {
-        return db as? T ?: initializeDatabase(getDatabaseBuilder<T>())
+    internal inline fun <reified T: RoomDatabase> getDatabase(): T {
+        @Suppress("UNCHECKED_CAST")
+        return db as? T ?: initializeDatabase(getDatabaseBuilder<T>()).also {
+            db = it
+        }
     }
 
     private inline fun <reified T: RoomDatabase> getDatabaseBuilder(): RoomDatabase.Builder<T> {

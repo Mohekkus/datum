@@ -1,20 +1,26 @@
 package cc.shinemoon.datumabase
 
+import cc.shinemoon.datumabase.database.AppDatabase
+import cc.shinemoon.datumabase.database.DatabaseInitializer
 import cc.shinemoon.datumabase.database.dao.PresetDao
 import cc.shinemoon.datumabase.database.entities.PresetEntity
-import cc.shinemoon.datumabase.model.preset.PresetModel
-import kotlinx.serialization.json.Json
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class PresetDatabaseRepository @Inject constructor(): DbInterface {
+@Singleton
+class PresetDatabaseManager @Inject constructor(
+    databaseEngine: DatabaseInitializer,
+): DbInterface {
+
+    private val database = databaseEngine.getDatabase<AppDatabase>()
 
     private fun getPreset(): PresetDao {
-        return getDatabase().presetDao()
+        return database.presetDao()
     }
 
-    override suspend fun get(name: String): PresetModel? {
+    override suspend fun get(name: String): String? {
         getPreset().getByName(name)?.let {
-            return Json.decodeFromString<PresetModel>(it.rulesString)
+            return it.rulesString
         } ?: run {
             return null
         }
@@ -24,12 +30,12 @@ class PresetDatabaseRepository @Inject constructor(): DbInterface {
         return getPreset().getAll().map { it.name }
     }
 
-    override suspend fun add(name: String, preset: PresetModel) {
+    override suspend fun add(name: String, presetString: String) {
         getPreset().insert(
             PresetEntity(
                 version = 0.0,
                 name = name,
-                rulesString = Json.encodeToString(preset)
+                rulesString = presetString
             )
         )
     }
@@ -37,6 +43,4 @@ class PresetDatabaseRepository @Inject constructor(): DbInterface {
     override suspend fun delete(name: String) {
         getPreset().delete(name)
     }
-
-
 }

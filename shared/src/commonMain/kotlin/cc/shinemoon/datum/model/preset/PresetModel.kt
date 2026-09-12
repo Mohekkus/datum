@@ -1,9 +1,6 @@
-package cc.shinemoon.datumabase.model.preset
+package cc.shinemoon.datum.model.preset
 
-import cc.shinemoon.datumabase.model.data.GeometryRules
-import cc.shinemoon.datumabase.model.data.MassPropertyRules
-import cc.shinemoon.datumabase.model.data.ToleranceRules
-import cc.shinemoon.datumabase.model.data.TopologyRules
+import contracts.PresetModelAlias
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,4 +13,4 @@ data class PresetModel(
     val massPropertyRules: MassPropertyRules = MassPropertyRules(),
     val toleranceRules: ToleranceRules = ToleranceRules(),
     val geometryRules: GeometryRules = GeometryRules()
-)
+): PresetModelAlias

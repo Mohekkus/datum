@@ -1,4 +1,4 @@
-package cc.shinemoon.datumabase.model.data
+package cc.shinemoon.datum.model.preset
 
 import kotlinx.serialization.Serializable
 

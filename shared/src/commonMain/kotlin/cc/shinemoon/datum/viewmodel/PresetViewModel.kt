@@ -2,22 +2,21 @@ package cc.shinemoon.datum.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cc.shinemoon.datum.utility.preset.PresetEvaluator
-import cc.shinemoon.datumabase.deleteFromPresets
-import cc.shinemoon.datumabase.getAllPresetNames
-import cc.shinemoon.datumabase.getPresetByName
-import cc.shinemoon.datumabase.model.preset.PresetEvaluation
-import cc.shinemoon.datumabase.model.preset.PresetModel
-import cc.shinemoon.datumabase.saveIntoPresets
 import cc.shinemoon.datum.model.occt.OcctInspectionData
+import cc.shinemoon.datum.model.preset.PresetModel
+import cc.shinemoon.datum.usecase.DatabaseUseCase
+import cc.shinemoon.datum.utility.preset.PresetEvaluation
+import cc.shinemoon.datum.utility.preset.PresetEvaluator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class PresetViewModel(
-    private val data: OcctInspectionData
-): ViewModel() {
+    private val useCase: DatabaseUseCase,
+    private val data: OcctInspectionData,
+) : ViewModel() {
 
     private val _preset = MutableStateFlow(PresetModel())
     val preset: StateFlow<PresetModel> = _preset.asStateFlow()
@@ -30,6 +29,7 @@ class PresetViewModel(
 
     fun updatePreset(newPreset: PresetModel) {
         _preset.value = newPreset
+        evaluate()
     }
 
     fun evaluate() {
@@ -38,41 +38,42 @@ class PresetViewModel(
 
     fun loadAllPresetsName() {
         viewModelScope.launch {
-            _savedPresetsName.value = getAllPresetNames()
+            _savedPresetsName.value = useCase.getAllNames()
         }
     }
 
-    fun loadPreset(presetName: String) {
+    fun loadPreset(name: String) {
         viewModelScope.launch {
-            val loadedPreset = getPresetByName(presetName)
-            getPresetByName(presetName)?.let { preset ->
-                preset.name = presetName
-                updatePreset(preset)
+            useCase.get(name)?.let { loaded ->
+                updatePreset(loaded.copy(name = name))
             }
         }
     }
 
-    fun checkNameDuplicate(
-        name: String,
-        callback: (Boolean) -> Unit
-    ) {
+    fun checkNameDuplicate(name: String, callback: (Boolean) -> Unit) {
         viewModelScope.launch {
-            callback(
-                getPresetByName(name) != null
-            )
+            callback(useCase.get(name) != null)
         }
     }
 
-    fun savePreset(name: String, presetModel: PresetModel) {
+    fun savePreset(name: String, presetModel: PresetModel = _preset.value) {
         viewModelScope.launch {
-            presetModel.name = name
-            saveIntoPresets(name, presetModel)
+            useCase.add(name, presetModel.copy(name = name))
+            loadAllPresetsName()
         }
     }
 
-    fun delete(presetName: String) {
+    fun deletePreset(name: String) {
         viewModelScope.launch {
-            deleteFromPresets(presetName)
+            useCase.delete(name)
+            loadAllPresetsName()
         }
     }
+}
+
+class PresetViewModelFactory @Inject constructor(
+    private val useCase: DatabaseUseCase,
+) {
+    fun create(data: OcctInspectionData): PresetViewModel =
+        PresetViewModel(useCase, data)
 }

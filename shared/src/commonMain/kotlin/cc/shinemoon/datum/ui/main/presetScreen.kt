@@ -2,7 +2,6 @@ package cc.shinemoon.datum.ui.main
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,14 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import cc.shinemoon.datum.ui.TextInputDialog
 import cc.shinemoon.datum.ui.main.rules.GeometryRulesScreen
 import cc.shinemoon.datum.ui.main.rules.MassPropertyRulesScreen
 import cc.shinemoon.datum.ui.main.rules.ToleranceRulesScreen
 import cc.shinemoon.datum.ui.main.rules.TopologyRulesScreen
-import cc.shinemoon.datumabase.model.preset.PresetEvaluation
-import cc.shinemoon.datumabase.model.preset.PresetModel
-import cc.shinemoon.datumabase.model.utility.MetricStatus
+import cc.shinemoon.datum.utility.preset.PresetEvaluation
+import cc.shinemoon.datum.model.preset.PresetModel
+import cc.shinemoon.datum.types.preset.MetricStatus
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Check
 import compose.icons.feathericons.Save

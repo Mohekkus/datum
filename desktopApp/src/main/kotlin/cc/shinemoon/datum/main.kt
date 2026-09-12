@@ -7,7 +7,7 @@ import cc.shinemoon.datum.di.initDependencies
 
 fun main() {
     val appComponent = DaggerAppComponent.create()
-    initDependencies(appComponent)
+    initDependencies(appComponent, appComponent.presetViewModelFactory())
 
     application {
         Window(

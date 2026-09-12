@@ -1,7 +1,8 @@
-package cc.shinemoon.datumabase.model.preset
+package cc.shinemoon.datum.utility.preset
 
-import cc.shinemoon.datumabase.model.utility.MetricStatus
-import cc.shinemoon.datumabase.model.utility.RuleGroup
+import cc.shinemoon.datum.model.preset.RuleCheck
+import cc.shinemoon.datum.types.preset.MetricStatus
+import cc.shinemoon.datum.types.preset.RuleGroup
 
 data class PresetEvaluation(
     val presetName: String,
@@ -10,7 +11,8 @@ data class PresetEvaluation(
     val faceStatuses: Map<Int, MetricStatus> = emptyMap(),
 ) {
     val passedCount: Int get() = checks.count { it.status == MetricStatus.PASS }
-    val overall: MetricStatus get() =
+    val overall: MetricStatus
+        get() =
         if (checks.any { it.status == MetricStatus.FAIL }) MetricStatus.FAIL else MetricStatus.PASS
     fun groupChecks(group: RuleGroup): List<RuleCheck> = checks.filter { it.group == group }
     fun groupStatus(group: RuleGroup): MetricStatus? {

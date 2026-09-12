@@ -1,4 +1,4 @@
-package cc.shinemoon.datum.occt
+package cc.shinemoon.datum.repository
 
 import cc.shinemoon.datum.model.occt.OcctInspectionData
 import cc.shinemoon.datum.usecase.OcctUseCase

@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,8 +12,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import cc.shinemoon.datum.ui.TextInputDialog
+import cc.shinemoon.datum.di.presetViewModelFactory
 import cc.shinemoon.datum.viewmodel.PresetViewModel
-import cc.shinemoon.datumabase.model.preset.PresetModel
+import cc.shinemoon.datum.model.preset.PresetModel
 import cc.shinemoon.datum.model.occt.OcctInspectionData
 
 @Composable
@@ -23,11 +25,17 @@ fun MainScreen(
     var barToggled: Boolean by remember { mutableStateOf(false) }
     var savingPresets: Boolean by remember { mutableStateOf(false) }
 
-    val viewmodel = remember { PresetViewModel(data) }
+    val viewmodel: PresetViewModel = remember(data) {
+        presetViewModelFactory.create(data)
+    }
 
     val preset by viewmodel.preset.collectAsState()
     val evaluation by viewmodel.evaluation.collectAsState()
     val savedPresetsName by viewmodel.savedPresetsName.collectAsState()
+
+    LaunchedEffect(viewmodel) {
+        viewmodel.loadAllPresetsName()
+    }
 
     val listener = object : InspectionInterface {
         override fun onClear() = onClear()
@@ -42,17 +50,15 @@ fun MainScreen(
         }
 
         override fun savedPresetList(): List<String> {
-            viewmodel.loadAllPresetsName()
             return savedPresetsName
         }
 
         override fun onLoadPreset(name: String) {
             viewmodel.loadPreset(name)
-            viewmodel.evaluate()
         }
 
         override fun onDeletePreset(name: String) {
-            viewmodel
+            viewmodel.deletePreset(name)
         }
     }
 

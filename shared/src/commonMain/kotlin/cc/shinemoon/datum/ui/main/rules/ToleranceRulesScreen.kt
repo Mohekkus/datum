@@ -23,9 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cc.shinemoon.datum.ui.MetricStatusChip
 import cc.shinemoon.datum.ui.ReusableRowNumberField
-import cc.shinemoon.datumabase.model.data.ToleranceRules
-import cc.shinemoon.datumabase.model.preset.PresetEvaluation
-import cc.shinemoon.datumabase.model.utility.RuleGroup
+import cc.shinemoon.datum.model.preset.ToleranceRules
+import cc.shinemoon.datum.utility.preset.PresetEvaluation
+import cc.shinemoon.datum.types.preset.RuleGroup
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Target
 
