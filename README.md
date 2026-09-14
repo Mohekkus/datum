@@ -1,4 +1,17 @@
-This is a Kotlin Multiplatform project targeting Desktop (JVM).
+# Datum
+
+Datum is a Kotlin Multiplatform desktop app for inspecting CAD/OCCT-derived model data.
+
+## Platform Support
+
+Datum currently targets Windows desktop. The OCCT bridge is bundled as a Windows `.dll`, so other operating systems are not supported yet.
+
+Preset data is stored locally in the user's app data directory:
+
+- Windows: `%APPDATA%\Datum\datumabase.db`
+- Fallback: `<user home>/.datum/Datum/datumabase.db`
+
+## Project Layout
 
 * [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
@@ -9,7 +22,7 @@ This is a Kotlin Multiplatform project targeting Desktop (JVM).
       Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
       folder is the appropriate location.
 
-### Running the apps
+## Running The App
 
 Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and
 options:
@@ -18,12 +31,8 @@ options:
     - Hot reload: `./gradlew :desktopApp:hotRun --auto`
     - Standard run: `./gradlew :desktopApp:run`
 
-### Running tests
+## Running Tests
 
 Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
 
 - Desktop tests: `./gradlew :shared:jvmTest`
-
----
-
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…

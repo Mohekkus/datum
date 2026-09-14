@@ -21,10 +21,22 @@ class DatabaseInitializer @Inject constructor() {
     }
 
     private inline fun <reified T: RoomDatabase> getDatabaseBuilder(): RoomDatabase.Builder<T> {
-        val dbFile = File(System.getProperty("java.io.tmpdir"), "datumabase.db")
+        val dbFile = getDatabaseFile()
         return Room.databaseBuilder<T>(
             name = dbFile.absolutePath,
         )
+    }
+
+    private fun getDatabaseFile(): File {
+        val appDataDir = System.getenv("APPDATA")
+            ?.takeIf { it.isNotBlank() }
+            ?.let(::File)
+            ?: File(System.getProperty("user.home"), ".datum")
+
+        val datumDir = File(appDataDir, "Datum")
+        datumDir.mkdirs()
+
+        return File(datumDir, "datumabase.db")
     }
 
     private inline fun <reified T: RoomDatabase> initializeDatabase(dbBuilder: RoomDatabase.Builder<T>): T {
