@@ -30,9 +30,9 @@ compose.desktop {
         mainClass = "cc.shinemoon.datum.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "cc.shinemoon.datum"
-            packageVersion = "1.0.0"
+            targetFormats(TargetFormat.Msi)
+            packageName = "Datum"
+            packageVersion = "0.1.0"
         }
     }
 }

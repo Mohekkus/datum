@@ -1,15 +1,22 @@
-# Datum
+# Datum 0.1.0
 
-Datum is a Kotlin Multiplatform desktop app for inspecting CAD/OCCT-derived model data.
+Datum is an early Windows desktop application for inspecting CAD/OCCT-derived model data
+and evaluating it against user-defined presets.
+
+This is an initial public release. The core inspection and preset workflow is usable, but
+the application is still evolving and may contain rough edges or breaking changes.
 
 ## Platform Support
 
 Datum currently targets Windows desktop. The OCCT bridge is bundled as a Windows `.dll`, so other operating systems are not supported yet.
 
-Preset data is stored locally in the user's app data directory:
+## Current Limitations
 
-- Windows: `%APPDATA%\Datum\datumabase.db`
-- Fallback: `<user home>/.datum/Datum/datumabase.db`
+- Windows is currently the supported platform.
+- The OCCT bridge is currently distributed as a Windows DLL.
+- Explorer context-menu integration, batch inspection, PDF export, and automatic updates
+  are not included yet.
+- Presets are stored locally on the current machine and are not synchronized.
 
 ## Project Layout
 
@@ -31,8 +38,25 @@ options:
     - Hot reload: `./gradlew :desktopApp:hotRun --auto`
     - Standard run: `./gradlew :desktopApp:run`
 
+The packaged Windows installer can be created with:
+
+`./gradlew :desktopApp:packageMsi`
+
 ## Running Tests
 
 Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
 
 - Desktop tests: `./gradlew :shared:jvmTest`
+
+## Data Location
+
+Preset data is stored locally in the user's app data directory:
+
+- Windows: `%APPDATA%\Datum\datumabase.db`
+- Fallback: `<user home>/.datum/Datum/datumabase.db`
+
+## Development Notes
+
+The repository includes the Gradle wrapper, so contributors can use the commands above
+without installing a separate Gradle distribution. The bundled OCCT native library means
+that the current desktop workflow is Windows-specific.
