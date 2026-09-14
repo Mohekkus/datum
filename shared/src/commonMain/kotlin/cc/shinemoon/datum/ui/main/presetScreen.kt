@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cc.shinemoon.datum.ui.main.rules.GeometryRulesScreen
 import cc.shinemoon.datum.ui.main.rules.MassPropertyRulesScreen
@@ -42,12 +45,14 @@ import cc.shinemoon.datum.model.preset.PresetModel
 import cc.shinemoon.datum.types.preset.MetricStatus
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Check
+import compose.icons.feathericons.Minimize
 import compose.icons.feathericons.Save
 import compose.icons.feathericons.XCircle
 
 interface PresetInterface {
     fun onPresetUpdate(presetModel: PresetModel)
     fun onSavingCurrentPreset()
+    fun onCloseRequest()
 }
 
 @Composable
@@ -62,75 +67,22 @@ fun PresetScreen(
         modifier = Modifier
             .animateContentSize()
             .fillMaxSize()
-            .padding(start = 16.dp),
+            .padding(start = 16.dp)
+            .animateContentSize(),
     ) {
         Column(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(12.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Rules", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.weight(1f))
-                IconButton(
-                    onClick = {
-                        presetInterface.onSavingCurrentPreset()
-                    }
-                ) {
-                    Icon(
-                        imageVector = FeatherIcons.Save,
-                        contentDescription = "Saving rules",
-                        modifier = Modifier
-                            .size(18.dp)
-                    )
-                }
-            }
-
-            if (preset?.name?.isNotEmpty() == true) {
-                Text(preset.name, style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(8.dp))
-            }
-
-            evaluation?.let { result ->
-                Spacer(Modifier.height(12.dp))
-                val passed = result.overall == MetricStatus.PASS
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = if (passed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = if (passed) FeatherIcons.Check else FeatherIcons.XCircle,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = if (passed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = "${if (passed) "PASS" else "FAIL"} · ${result.passedCount}/${result.checks.size} checks",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = if (passed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
-                        )
-                    }
-                }
-                if (result.checks.isNotEmpty()) {
-                    Spacer(Modifier.height(6.dp))
-                    SegmentedProgressBar(
-                        passed = result.passedCount,
-                        failed = result.checks.size - result.passedCount,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp)),
-                    )
-                }
-
-                Spacer(Modifier.height(16.dp))
-            }
+            PresetHeader(
+                presetName = preset?.name.orEmpty(),
+                evaluation = evaluation,
+                canClose = preset?.name?.isNotBlank() == true,
+                canSave = evaluation?.checks?.isNotEmpty() == true,
+                onCloseRequest = presetInterface::onCloseRequest,
+                onSaveRequest = presetInterface::onSavingCurrentPreset,
+            )
 
             parseError?.let { message ->
                 Spacer(Modifier.height(8.dp))
@@ -141,6 +93,7 @@ fun PresetScreen(
                 )
             }
 
+            Spacer(Modifier.height(12.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             preset?.let { active ->
@@ -169,6 +122,113 @@ fun PresetScreen(
                     evaluation = evaluation,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun PresetHeader(
+    presetName: String,
+    evaluation: PresetEvaluation?,
+    canClose: Boolean,
+    canSave: Boolean,
+    onCloseRequest: () -> Unit,
+    onSaveRequest: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (canClose) {
+                IconButton(
+                    modifier = Modifier.size(36.dp),
+                    onClick = onCloseRequest
+                ) {
+                    Icon(
+                        imageVector = FeatherIcons.Minimize,
+                        contentDescription = "Minimize preset panel",
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Rules",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                if (presetName.isNotBlank()) {
+                    Text(
+                        text = presetName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            evaluation?.takeIf { it.checks.isNotEmpty() }?.let { result ->
+                EvaluationStatusChip(result)
+            }
+
+            if (canSave) {
+                FilledTonalIconButton(
+                    modifier = Modifier.size(36.dp),
+                    onClick = onSaveRequest
+                ) {
+                    Icon(
+                        imageVector = FeatherIcons.Save,
+                        contentDescription = "Save rules",
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+        }
+
+        evaluation?.takeIf { it.checks.isNotEmpty() }?.let { result ->
+            SegmentedProgressBar(
+                passed = result.passedCount,
+                failed = result.checks.size - result.passedCount,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(3.dp)),
+            )
+        }
+    }
+}
+
+@Composable
+private fun EvaluationStatusChip(result: PresetEvaluation) {
+    val passed = result.overall == MetricStatus.PASS
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        color = if (passed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = if (passed) FeatherIcons.Check else FeatherIcons.XCircle,
+                contentDescription = null,
+                modifier = Modifier.size(14.dp),
+                tint = if (passed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                text = "${if (passed) "PASS" else "FAIL"} · ${result.passedCount}/${result.checks.size}",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (passed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
+            )
         }
     }
 }

@@ -40,6 +40,14 @@ class PresetDatabaseManager @Inject constructor(
         )
     }
 
+    override suspend fun update(name: String, presetString: String): Boolean {
+        return getPreset().updateByName(
+            name = name,
+            presetString = presetString,
+            version = 0.0
+        ) > 0
+    }
+
     override suspend fun delete(name: String) {
         getPreset().delete(name)
     }

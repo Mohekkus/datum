@@ -27,6 +27,9 @@ class PresetViewModel(
     private val _savedPresetsName = MutableStateFlow<List<String>>(emptyList())
     val savedPresetsName: StateFlow<List<String>> = _savedPresetsName.asStateFlow()
 
+    private val _presetMessage = MutableStateFlow<String?>(null)
+    val presetMessage: StateFlow<String?> = _presetMessage.asStateFlow()
+
     fun updatePreset(newPreset: PresetModel) {
         _preset.value = newPreset
         evaluate()
@@ -50,24 +53,58 @@ class PresetViewModel(
         }
     }
 
-    fun checkNameDuplicate(name: String, callback: (Boolean) -> Unit) {
+    fun savePreset(name: String, presetModel: PresetModel = _preset.value) {
         viewModelScope.launch {
-            callback(useCase.get(name) != null)
+            val presetName = name.trim()
+            if (presetName.isBlank()) {
+                _presetMessage.value = "Preset name is required."
+                return@launch
+            }
+
+            if (useCase.get(presetName) != null) {
+                _presetMessage.value = "Preset \"$presetName\" already exists."
+                return@launch
+            }
+
+            val savedPreset = presetModel.copy(name = presetName)
+            useCase.add(presetName, savedPreset)
+            _savedPresetsName.value = useCase.getAllNames()
+            updatePreset(savedPreset)
+            _presetMessage.value = null
         }
     }
 
-    fun savePreset(name: String, presetModel: PresetModel = _preset.value) {
+    fun updateSavedPreset(presetModel: PresetModel = _preset.value) {
+        val presetName = presetModel.name
         viewModelScope.launch {
-            useCase.add(name, presetModel.copy(name = name))
-            loadAllPresetsName()
+            if (presetName.isBlank()) {
+                _presetMessage.value = "Preset name is required before updating."
+                return@launch
+            }
+
+            val updated = useCase.update(presetName, presetModel)
+            if (!updated) {
+                _presetMessage.value = "Preset \"$presetName\" no longer exists."
+                _savedPresetsName.value = useCase.getAllNames()
+                return@launch
+            }
+
+            _savedPresetsName.value = useCase.getAllNames()
+            updatePreset(presetModel)
+            _presetMessage.value = null
         }
     }
 
     fun deletePreset(name: String) {
         viewModelScope.launch {
             useCase.delete(name)
-            loadAllPresetsName()
+            _savedPresetsName.value = useCase.getAllNames()
+            updatePreset(PresetModel())
         }
+    }
+
+    fun clearPresetMessage() {
+        _presetMessage.value = null
     }
 }
 

@@ -1,5 +1,8 @@
 package cc.shinemoon.datum.ui.main
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cc.shinemoon.datum.ui.MetricStatusChip
 import cc.shinemoon.datum.utility.preset.PresetEvaluation
@@ -39,6 +44,7 @@ import compose.icons.feathericons.Move
 import compose.icons.feathericons.Package
 import compose.icons.feathericons.Plus
 import compose.icons.feathericons.Target
+import compose.icons.feathericons.Trash
 import compose.icons.feathericons.X
 import compose.icons.feathericons.XCircle
 
@@ -101,39 +107,67 @@ fun InspectionScreen(
             } else {
                 var isExpanded by remember { mutableStateOf(false) }
 
-                @OptIn(ExperimentalMaterial3Api::class)
-                ExposedDropdownMenuBox(
+                androidx.compose.foundation.layout.Box(
                     modifier = Modifier.weight(1f),
-                    expanded = isExpanded,
-                    onExpandedChange = { },
+                    contentAlignment = Alignment.TopEnd
                 ) {
-                    Row {
-                        Spacer(Modifier.weight(1f))
-                        PresetButton { isExpanded = !isExpanded }
-                    }
+                    PresetButton { isExpanded = !isExpanded }
 
-                    ExposedDropdownMenu(
+                    DropdownMenu(
+                        modifier = Modifier.widthIn(min = 260.dp, max = 360.dp),
                         expanded = isExpanded,
                         onDismissRequest = { isExpanded = false },
                     ) {
                         savedPresetList.forEach { item ->
-                            DropdownMenuItem(
-                                text = {
-                                    Row {
-                                        Text(text = item)
-                                        IconButton(
-                                            onClick = {
-
-                                            }
-                                        ) {
-
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = 44.dp)
+                                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable {
+                                            isExpanded = false
+                                            listener.onLoadPreset(item)
+                                            listener.onToggleSidebar()
                                         }
-                                    }
-                                },
-                                onClick = {
-                                    listener.onLoadPreset(item)
+                                        .padding(horizontal = 8.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = FeatherIcons.Package,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Spacer(Modifier.width(12.dp))
+                                    Text(
+                                        text = item,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                 }
-                            )
+
+                                IconButton(
+                                    modifier = Modifier.size(32.dp),
+                                    onClick = {
+                                        isExpanded = false
+                                        listener.onDeletePreset(item)
+                                        listener.onToggleSidebar()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = FeatherIcons.Trash,
+                                        contentDescription = "Delete preset $item",
+                                        modifier = Modifier.size(16.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -260,7 +294,6 @@ fun ValidityStatusCard(state: TopologicalState) {
     val isValid = state.isBRepValid && state.faults.isEmpty()
     reusableCard(
         if (isValid) FeatherIcons.CheckCircle else FeatherIcons.XCircle,
-
     ) {
         Column {
             Text(
@@ -285,21 +318,38 @@ fun ValidityStatusCard(state: TopologicalState) {
             HorizontalDivider(color = MaterialTheme.colorScheme.error.copy(alpha = 0.3f))
             Spacer(Modifier.height(8.dp))
 
-            Text("Detected Faults:", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+            Text(
+                "Detected Faults:",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.error
+            )
             Spacer(Modifier.height(4.dp))
 
             // Show up to 3 faults to avoid flooding the UI
             state.faults.take(3).forEach { fault ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(FeatherIcons.AlertTriangle, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.error)
+                    Icon(
+                        FeatherIcons.AlertTriangle,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.error
+                    )
                     Spacer(Modifier.width(6.dp))
-                    Text(fault, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
+                    Text(
+                        fault,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
                 }
                 Spacer(Modifier.height(4.dp))
             }
 
             if (state.faults.size > 3) {
-                Text("+ ${state.faults.size - 3} more faults", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    "+ ${state.faults.size - 3} more faults",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -310,9 +360,19 @@ fun BoundingBoxCard(bbox: BoundingBox) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(FeatherIcons.Box, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(
+                    FeatherIcons.Box,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
                 Spacer(Modifier.width(8.dp))
-                Text("BOUNDING BOX", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+                Text(
+                    "BOUNDING BOX",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
             }
             Spacer(Modifier.height(16.dp))
 
@@ -329,9 +389,34 @@ fun BoundingBoxCard(bbox: BoundingBox) {
 
             // Detailed Coordinates
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Min: (${String.format("%.4f", bbox.minX)}, ${String.format("%.4f", bbox.minY)}, ${String.format("%.4f", bbox.minZ)})", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Max: (${String.format("%.4f", bbox.maxX)}, ${String.format("%.4f", bbox.maxY)}, ${String.format("%.4f", bbox.maxZ)})", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Diagonal: ${String.format("%.2f", bbox.diagonal)} mm", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    "Min: (${String.format("%.4f", bbox.minX)}, ${
+                        String.format(
+                            "%.4f",
+                            bbox.minY
+                        )
+                    }, ${String.format("%.4f", bbox.minZ)})",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    "Max: (${String.format("%.4f", bbox.maxX)}, ${
+                        String.format(
+                            "%.4f",
+                            bbox.maxY
+                        )
+                    }, ${String.format("%.4f", bbox.maxZ)})",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    "Diagonal: ${String.format("%.2f", bbox.diagonal)} mm",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -342,7 +427,13 @@ private fun DimensionItem(label: String, value: Double) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(4.dp))
-        Text(String.format("%.2f", value), style = MaterialTheme.typography.titleLarge, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            String.format("%.2f", value),
+            style = MaterialTheme.typography.titleLarge,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
         Text("mm", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
@@ -352,9 +443,19 @@ fun TopologyCard(topology: TopologyCounts) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(FeatherIcons.Layers, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(
+                    FeatherIcons.Layers,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
                 Spacer(Modifier.width(8.dp))
-                Text("TOPOLOGY", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+                Text(
+                    "TOPOLOGY",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
             }
             Spacer(Modifier.height(12.dp))
             MetricRow("Solids", topology.solids.toString())
@@ -372,14 +473,27 @@ fun PlacementCard(placement: ModelPlacement) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(FeatherIcons.Move, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(
+                    FeatherIcons.Move,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
                 Spacer(Modifier.width(8.dp))
-                Text("MODEL PLACEMENT", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+                Text(
+                    "MODEL PLACEMENT",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
             }
             Spacer(Modifier.height(12.dp))
 
             val (tx, ty, tz) = placement.translation
-            MetricRow("Translation", "X: ${String.format("%.2f", tx)}, Y: ${String.format("%.2f", ty)}, Z: ${String.format("%.2f", tz)}")
+            MetricRow(
+                "Translation",
+                "X: ${String.format("%.2f", tx)}, Y: ${String.format("%.2f", ty)}, Z: ${String.format("%.2f", tz)}"
+            )
             MetricRow("Scale Factor", String.format("%.4f", placement.scaleFactor))
         }
     }
@@ -390,9 +504,19 @@ fun MassPropertiesCard(mass: MassProperties) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(FeatherIcons.Package, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(
+                    FeatherIcons.Package,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
                 Spacer(Modifier.width(8.dp))
-                Text("MASS PROPERTIES", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+                Text(
+                    "MASS PROPERTIES",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
             }
             Spacer(Modifier.height(16.dp))
 
@@ -406,17 +530,44 @@ fun MassPropertiesCard(mass: MassProperties) {
 
             mass.centerOfMass?.let {
                 val (x, y, z) = it
-                Text("Center of Mass", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    "Center of Mass",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Spacer(Modifier.height(4.dp))
-                Text("X: ${String.format("%.4f", x)}   Y: ${String.format("%.4f", y)}   Z: ${String.format("%.4f", z)}", style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurface)
-            } ?: Text("Center of Mass: Unavailable", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                Text(
+                    "X: ${String.format("%.4f", x)}   Y: ${String.format("%.4f", y)}   Z: ${String.format("%.4f", z)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            } ?: Text(
+                "Center of Mass: Unavailable",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error
+            )
 
             mass.inertia?.let {
                 Spacer(Modifier.height(12.dp))
                 val (rx, ry, rz) = it.radiusOfGyration
-                Text("Radius of Gyration", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    "Radius of Gyration",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Spacer(Modifier.height(4.dp))
-                Text("X: ${String.format("%.4f", rx)}   Y: ${String.format("%.4f", ry)}   Z: ${String.format("%.4f", rz)}", style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurface)
+                Text(
+                    "X: ${String.format("%.4f", rx)}   Y: ${String.format("%.4f", ry)}   Z: ${
+                        String.format(
+                            "%.4f",
+                            rz
+                        )
+                    }",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     }
@@ -427,15 +578,40 @@ fun ToleranceCard(tolerances: ToleranceStatistics, evaluation: PresetEvaluation?
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(FeatherIcons.Target, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(
+                    FeatherIcons.Target,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
                 Spacer(Modifier.width(8.dp))
-                Text("TOLERANCE STATISTICS", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+                Text(
+                    "TOLERANCE STATISTICS",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
             }
             Spacer(Modifier.height(16.dp))
 
-            ToleranceRow("Vertex", tolerances.maxVertexTol, tolerances.avgVertexTol, evaluation?.checkStatus("tolerance.vertex"))
-            ToleranceRow("Edge", tolerances.maxEdgeTol, tolerances.avgEdgeTol, evaluation?.checkStatus("tolerance.edge"))
-            ToleranceRow("Face", tolerances.maxFaceTol, tolerances.avgFaceTol, evaluation?.checkStatus("tolerance.face"))
+            ToleranceRow(
+                "Vertex",
+                tolerances.maxVertexTol,
+                tolerances.avgVertexTol,
+                evaluation?.checkStatus("tolerance.vertex")
+            )
+            ToleranceRow(
+                "Edge",
+                tolerances.maxEdgeTol,
+                tolerances.avgEdgeTol,
+                evaluation?.checkStatus("tolerance.edge")
+            )
+            ToleranceRow(
+                "Face",
+                tolerances.maxFaceTol,
+                tolerances.avgFaceTol,
+                evaluation?.checkStatus("tolerance.face")
+            )
         }
     }
 }
@@ -445,9 +621,19 @@ fun EdgeSamplesCard(edges: List<EdgeRecord>, evaluation: PresetEvaluation?) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(FeatherIcons.MinusCircle, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(
+                    FeatherIcons.MinusCircle,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
                 Spacer(Modifier.width(8.dp))
-                Text("PER-EDGE SAMPLES", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+                Text(
+                    "PER-EDGE SAMPLES",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
             }
             Spacer(Modifier.height(12.dp))
 
@@ -474,9 +660,19 @@ fun FaceSamplesCard(faces: List<FaceRecord>, evaluation: PresetEvaluation?) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(FeatherIcons.Hexagon, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(
+                    FeatherIcons.Hexagon,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
                 Spacer(Modifier.width(8.dp))
-                Text("PER-FACE SAMPLES", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+                Text(
+                    "PER-FACE SAMPLES",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
             }
             Spacer(Modifier.height(12.dp))
 
@@ -500,31 +696,64 @@ fun FaceSamplesCard(faces: List<FaceRecord>, evaluation: PresetEvaluation?) {
 
 @Composable
 private fun MetricRow(label: String, value: String) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
 @Composable
 private fun ToleranceRow(type: String, maxTol: Double, avgTol: Double, status: MetricStatus?) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-        Text(type, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            type,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Medium
+        )
 
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Column(horizontalAlignment = Alignment.End) {
-                Text("Avg", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(String.format("%.2e", avgTol), style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    "Avg",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    String.format("%.2e", avgTol),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text("Max", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    "Max",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         String.format("%.2e", maxTol),
                         style = MaterialTheme.typography.bodyMedium,
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
-                        color = status?.let { if (it == MetricStatus.PASS) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error } ?: MaterialTheme.colorScheme.onSurface
+                        color = status?.let { if (it == MetricStatus.PASS) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error }
+                            ?: MaterialTheme.colorScheme.onSurface
                     )
                     status?.let {
                         Spacer(Modifier.width(4.dp))
@@ -544,7 +773,12 @@ private fun ToleranceRow(type: String, maxTol: Double, avgTol: Double, status: M
 @Composable
 private fun SampleRow(id: String, value: String, subValue: String? = null, status: MetricStatus?) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(id, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            id,
+            style = MaterialTheme.typography.bodySmall,
+            fontFamily = FontFamily.Monospace,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
         Column(horizontalAlignment = Alignment.End) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -552,7 +786,8 @@ private fun SampleRow(id: String, value: String, subValue: String? = null, statu
                     text = value,
                     style = MaterialTheme.typography.bodySmall,
                     fontFamily = FontFamily.Monospace,
-                    color = status?.let { if (it == MetricStatus.PASS) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error } ?: MaterialTheme.colorScheme.onSurface
+                    color = status?.let { if (it == MetricStatus.PASS) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error }
+                        ?: MaterialTheme.colorScheme.onSurface
                 )
                 status?.let {
                     Spacer(Modifier.width(4.dp))
@@ -589,7 +824,12 @@ private fun reusableCard(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
             Spacer(Modifier.width(8.dp))
             content()
         }

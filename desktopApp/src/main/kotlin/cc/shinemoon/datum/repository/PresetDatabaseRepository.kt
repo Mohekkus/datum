@@ -24,6 +24,10 @@ class PresetDatabaseRepository @Inject constructor(
         manager.add(name, Json.encodeToString(preset))
     }
 
+    override suspend fun update(name: String, preset: PresetModel): Boolean {
+        return manager.update(name, Json.encodeToString(preset))
+    }
+
     override suspend fun delete(name: String) {
         manager.delete(name)
     }

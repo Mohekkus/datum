@@ -4,6 +4,7 @@ import androidx.room3.Dao
 import androidx.room3.Delete
 import androidx.room3.Insert
 import androidx.room3.Query
+import androidx.room3.Update
 import cc.shinemoon.datumabase.database.entities.PresetEntity
 
 @Dao
@@ -23,6 +24,12 @@ internal interface PresetDao {
 
     @Insert
     suspend fun insert(preset: PresetEntity)
+
+    @Update
+    suspend fun update(preset: PresetEntity)
+
+    @Query("update user_preset set rulesString = :presetString, version = :version where name = :name")
+    suspend fun updateByName(name: String, presetString: String, version: Double): Int
 
     @Delete
     suspend fun delete(preset: PresetEntity)

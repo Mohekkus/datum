@@ -6,6 +6,7 @@ interface DbInterface {
     suspend fun getPresetListNames(): List<String>
 
     suspend fun add(name: String, presetString: String)
+    suspend fun update(name: String, presetString: String): Boolean
     suspend fun delete(name: String)
 
 }

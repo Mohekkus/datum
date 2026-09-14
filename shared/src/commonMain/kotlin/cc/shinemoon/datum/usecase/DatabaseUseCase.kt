@@ -8,6 +8,6 @@ interface DatabaseUseCase {
     suspend fun getAllNames(): List<String>
 
     suspend fun add(name: String, preset: PresetModel)
-//    suspend fun update(name: String, preset: PresetModel)
+    suspend fun update(name: String, preset: PresetModel): Boolean
     suspend fun delete(name: String)
 }

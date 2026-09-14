@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -31,7 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import cc.shinemoon.datum.types.preset.MetricStatus
+import compose.icons.feathericons.AlertTriangle
 
 @Composable
 fun ReusableRowNumberField(
@@ -126,9 +132,8 @@ fun TextInputDialog(
             Button(
                 onClick = {
                     onConfirm(textInput)
-                    onDismissRequest()
                 },
-                enabled = textInput.isNotBlank() // Simple validation: disable if empty
+                enabled = textInput.isNotBlank()
             ) {
                 Text("Confirm")
             }
@@ -139,4 +144,94 @@ fun TextInputDialog(
             }
         }
     )
+}
+
+enum class PresetConfirmationAction {
+    POSITIVE, NEGATIVE
+}
+
+data class PresetConfirmationModel(
+    var title: String = "",
+    var subtitle: String = "",
+    var action: PresetConfirmationAction = PresetConfirmationAction.NEGATIVE,
+    var actionButtonString: String = ""
+)
+
+@Composable
+fun PresetConfirmationDialog(
+    model: PresetConfirmationModel = PresetConfirmationModel(),
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Icon(
+                    imageVector = FeatherIcons.AlertTriangle,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp),
+                )
+
+                Text(
+                    text = model.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+
+                Text(
+                    text = model.subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                Divider(color = MaterialTheme.colorScheme.outlineVariant)
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    TextButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.textButtonColors(),
+                    ) {
+                        Text("Cancel")
+                    }
+
+                    Button(
+                        onClick = onConfirm,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor =
+                            when (model.action) {
+                                PresetConfirmationAction.NEGATIVE -> MaterialTheme.colorScheme.error
+                                PresetConfirmationAction.POSITIVE -> MaterialTheme.colorScheme.primary
+                            },
+                            contentColor =
+                            when (model.action) {
+                                PresetConfirmationAction.NEGATIVE -> MaterialTheme.colorScheme.onError
+                                PresetConfirmationAction.POSITIVE -> MaterialTheme.colorScheme.onPrimaryContainer
+                            },
+                        ),
+                    ) {
+                        Text(model.actionButtonString)
+                    }
+                }
+            }
+        }
+    }
 }
