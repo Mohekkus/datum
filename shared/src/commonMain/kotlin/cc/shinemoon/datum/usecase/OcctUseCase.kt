@@ -5,4 +5,5 @@ import java.io.File
 
 interface OcctUseCase {
     fun inspect(file: File): OcctInspectionData
+    fun close()
 }

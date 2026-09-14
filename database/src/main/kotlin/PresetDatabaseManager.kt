@@ -51,4 +51,8 @@ class PresetDatabaseManager @Inject constructor(
     override suspend fun delete(name: String) {
         getPreset().delete(name)
     }
+
+    override suspend fun close() {
+        database.close()
+    }
 }

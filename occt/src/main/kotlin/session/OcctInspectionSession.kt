@@ -97,7 +97,8 @@ internal class OcctInspectionSession @Inject constructor(
                 .also { if (it.size % 4 != 0) throw OcctDataException("shapeTreeRecords", it.size - (it.size % 4), it.size) },
             meshVertices = if (performTessellation) DirectOcctNative.getMeshVertices(handle) else null,
             meshNormals = if (performTessellation) DirectOcctNative.getMeshNormals(handle) else null,
-            meshTriangles = if (performTessellation) DirectOcctNative.getMeshTriangles(handle) else null
+            meshTriangles = if (performTessellation) DirectOcctNative.getMeshTriangles(handle) else null,
+            meshTriangleFaceIds = if (performTessellation) DirectOcctNative.getMeshTriangleFaceIds(handle) else null
         )
     }
 

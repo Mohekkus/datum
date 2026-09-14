@@ -16,6 +16,10 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.compose.uiToolingPreview)
 
+            implementation("io.github.vinceglb:filekit-core:0.16.0")
+            implementation("io.github.vinceglb:filekit-dialogs:0.16.0")
+            implementation("io.github.vinceglb:filekit-dialogs-compose:0.16.0")
+
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.compose.icons.feather)

@@ -19,7 +19,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +37,7 @@ import cc.shinemoon.datum.di.viewModelFactory
 import cc.shinemoon.datum.viewmodel.OcctViewModel
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.X
+import kotlin.reflect.KFunction
 
 @Composable
 fun App() {
@@ -65,17 +68,17 @@ fun App() {
                     )
                 }
             }
-        }
 
-        if (state.isLoading) {
-            LoadingOverlay()
-        }
+            if (state.isLoading) {
+                LoadingOverlay()
+            }
 
-        state.error?.let { message ->
-            ErrorBanner(
-                message = message,
-                onDismiss = viewmodel::dismissError,
-            )
+            state.error?.let { message ->
+                ErrorBanner(
+                    message = message,
+                    onDismiss = viewmodel::dismissError,
+                )
+            }
         }
     }
 }

@@ -17,7 +17,8 @@ class OcctRepository @Inject constructor(
     override fun inspect(file: File): OcctInspectionData =
         sessionManager.inspect(file.toPath()).toStructuredModel()
 
-    fun close() {
+    override fun close() {
+        println("[close] OcctRepository.close()")
         sessionManager.close()
     }
 }

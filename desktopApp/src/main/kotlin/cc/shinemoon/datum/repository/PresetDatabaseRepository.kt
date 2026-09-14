@@ -31,4 +31,8 @@ class PresetDatabaseRepository @Inject constructor(
     override suspend fun delete(name: String) {
         manager.delete(name)
     }
+
+    override suspend fun close() {
+        manager.close()
+    }
 }

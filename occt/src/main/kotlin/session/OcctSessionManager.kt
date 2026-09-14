@@ -15,6 +15,7 @@ class OcctSessionManager @Inject internal constructor(
     }
 
     fun close() {
+        println("[close] OcctSessionManager.close()")
         session.close()
     }
 }

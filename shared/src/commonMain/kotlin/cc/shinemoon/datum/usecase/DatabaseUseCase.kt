@@ -10,4 +10,6 @@ interface DatabaseUseCase {
     suspend fun add(name: String, preset: PresetModel)
     suspend fun update(name: String, preset: PresetModel): Boolean
     suspend fun delete(name: String)
+
+    suspend fun close()
 }

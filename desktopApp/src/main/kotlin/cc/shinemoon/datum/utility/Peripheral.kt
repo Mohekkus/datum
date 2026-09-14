@@ -53,7 +53,7 @@ fun RawOcctModel.toStructuredModel(): OcctModel =
         ),
         shapeTreeRecords.toShapeHierarchy(),
         toTessellationMesh(
-            meshVertices, meshNormals, meshTriangles
+            meshVertices, meshNormals, meshTriangles, meshTriangleFaceIds
         )
     )
 
@@ -63,7 +63,9 @@ private fun Array<String>.toMetadata(
 ): Metadata =
     Metadata(
         schema = getOrElse(0) { "" },
-        fileName = getOrElse(1) { "" },
+        fileName = getOrElse(1) { "" }
+            .substringAfterLast('/')
+            .substringBeforeLast('.'),
         timestamp = getOrElse(2) { "" },
         author = getOrElse(3) { "" },
         organization = getOrElse(4) { "" },
@@ -279,13 +281,17 @@ private fun IntArray.toShapeHierarchy(): List<ShapeHierarchyNode> {
     return roots
 }
 
-private fun toTessellationMesh(
+fun RawOcctModel.toTessellationMesh(
     vertices: FloatArray?,
     normals: FloatArray?,
-    triangles: IntArray?
+    triangles: IntArray?,
+    triangleFaceIds: IntArray?
 ): TriangleMesh? =
     if (vertices != null && normals != null && triangles != null)
         TriangleMesh(
-            vertices, normals, triangles
+            vertices = vertices,
+            normals = normals,
+            triangles = triangles,
+            triangleFaceIds = triangleFaceIds ?: intArrayOf()
         )
     else null

@@ -9,4 +9,5 @@ interface DbInterface {
     suspend fun update(name: String, presetString: String): Boolean
     suspend fun delete(name: String)
 
+    suspend fun close()
 }

@@ -25,5 +25,6 @@ data class RawOcctModel(
     val shapeTreeRecords: IntArray,
     val meshVertices: FloatArray?,
     val meshNormals: FloatArray?,
-    val meshTriangles: IntArray?
+    val meshTriangles: IntArray?,
+    val meshTriangleFaceIds: IntArray?,
 )

@@ -1,11 +1,11 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinSerialization)
+
+    id("dev.nucleusframework") version "2.5.15"
 }
 
 dependencies {
@@ -23,16 +23,18 @@ dependencies {
     ksp(libs.dagger.compiler)
 
     implementation(libs.kotlinx.serializationJson)
+
+    implementation("dev.nucleusframework:nucleus.nucleus-application:2.5.15")
+    implementation("dev.nucleusframework:nucleus.decorated-window-tao:2.5.15")
 }
 
-compose.desktop {
+nucleus {
     application {
         mainClass = "cc.shinemoon.datum.MainKt"
 
-        nativeDistributions {
-            targetFormats(TargetFormat.Msi)
-            packageName = "Datum"
-            packageVersion = "0.1.0"
+        graalvm {
+            isEnabled.set(true)
+            buildArgs.add("-H:+AddAllCharsets")
         }
     }
 }

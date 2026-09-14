@@ -6,7 +6,8 @@ import java.util.Locale
 data class TriangleMesh(
     val vertices: FloatArray,
     val normals: FloatArray,
-    val triangles: IntArray
+    val triangles: IntArray,
+    val triangleFaceIds: IntArray,
 ) {
     val vertexCount: Int get() = vertices.size / 3
     val triangleCount: Int get() = triangles.size / 3

@@ -39,6 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.FilePlus
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -77,6 +79,14 @@ fun DropZone(
     fun accept(file: File) {
         val problem = validate(file)
         if (problem == null) currentOnFileAccepted(file) else showError(problem)
+    }
+
+    val filePicker = rememberFilePickerLauncher(
+        type = FileKitType.File(
+            extensions = setOf("step", "stp")
+        )
+    ) { file ->
+        file?.file?.let(::accept)
     }
 
     val dragTarget = remember {
@@ -133,7 +143,8 @@ fun DropZone(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
             ) {
-                browseForStepFile { file -> file?.let(::accept) }
+                filePicker.launch()
+//                browseForStepFile { file -> file?.let(::accept) }
             }
             .dragAndDropTarget(
                 shouldStartDragAndDrop = { true },

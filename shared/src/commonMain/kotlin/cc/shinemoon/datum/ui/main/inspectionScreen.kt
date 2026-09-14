@@ -1,7 +1,5 @@
 package cc.shinemoon.datum.ui.main
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,7 +13,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cc.shinemoon.datum.ui.MetricStatusChip
 import cc.shinemoon.datum.utility.preset.PresetEvaluation
@@ -100,14 +97,15 @@ fun InspectionScreen(
                 )
             }
 
-            val savedPresetList = listener.savedPresetList()
-            if (savedPresetList.isEmpty()) {
-                Spacer(Modifier.weight(1f))
+            Spacer(Modifier.weight(1f))
+
+            val savedPresetList = listener.savedPresetList().toMutableList()
+            if (savedPresetList.isEmpty())
                 PresetButton { listener.onToggleSidebar() }
-            } else {
+            else {
                 var isExpanded by remember { mutableStateOf(false) }
 
-                androidx.compose.foundation.layout.Box(
+                Box(
                     modifier = Modifier.weight(1f),
                     contentAlignment = Alignment.TopEnd
                 ) {
@@ -118,7 +116,7 @@ fun InspectionScreen(
                         expanded = isExpanded,
                         onDismissRequest = { isExpanded = false },
                     ) {
-                        savedPresetList.forEach { item ->
+                        savedPresetList.forEachIndexed { index, item ->
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -152,21 +150,22 @@ fun InspectionScreen(
                                     )
                                 }
 
-                                IconButton(
-                                    modifier = Modifier.size(32.dp),
-                                    onClick = {
-                                        isExpanded = false
-                                        listener.onDeletePreset(item)
-                                        listener.onToggleSidebar()
+                                if (index != savedPresetList.size)
+                                    IconButton(
+                                        modifier = Modifier.size(32.dp),
+                                        onClick = {
+                                            isExpanded = false
+                                            listener.onDeletePreset(item)
+                                            listener.onToggleSidebar()
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = FeatherIcons.Trash,
+                                            contentDescription = "Delete preset $item",
+                                            modifier = Modifier.size(16.dp),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
                                     }
-                                ) {
-                                    Icon(
-                                        imageVector = FeatherIcons.Trash,
-                                        contentDescription = "Delete preset $item",
-                                        modifier = Modifier.size(16.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
                             }
                         }
                     }

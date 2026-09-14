@@ -7,6 +7,7 @@ import cc.shinemoon.datum.model.occt.OcctInspectionData
 import cc.shinemoon.datum.usecase.OcctUseCase
 import contracts.OcctViewModelContract
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,6 +39,12 @@ class OcctViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    override fun close() {
+        println("[close] OcctViewModel.close()")
+        occtUseCase.close()
+        viewModelScope.cancel()
     }
 
     fun clearResults() {

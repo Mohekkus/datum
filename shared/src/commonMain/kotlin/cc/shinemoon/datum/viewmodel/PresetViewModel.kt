@@ -106,6 +106,10 @@ class PresetViewModel(
     fun clearPresetMessage() {
         _presetMessage.value = null
     }
+
+    fun close() {
+        viewModelScope.launch { close() }
+    }
 }
 
 class PresetViewModelFactory @Inject constructor(

@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,6 +60,10 @@ fun MainScreen(
 
     LaunchedEffect(viewmodel) {
         viewmodel.loadAllPresetsName()
+    }
+
+    DisposableEffect(viewmodel) {
+        onDispose { viewmodel.close() }
     }
 
     val listener = object : InspectionInterface {
@@ -114,8 +119,8 @@ fun MainScreen(
                 model = PresetConfirmationModel(
                     title = "Overwrite current saved preset?",
                     subtitle = "Are you sure want to update current set preset as ${preset.name}?",
-                    action = PresetConfirmationAction.NEGATIVE,
-                    actionButtonString = "overwrite"
+                    action = PresetConfirmationAction.POSITIVE,
+                    actionButtonString = "Overwrite"
                 ),
                 onConfirm = {
                     viewmodel.updateSavedPreset()
