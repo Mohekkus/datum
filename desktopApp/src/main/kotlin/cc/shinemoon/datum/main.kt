@@ -24,12 +24,9 @@ fun main() {
         )
 
         fun onCloseApp() {
-            println("=== onCloseApp called ===")
-
+            // Have a hanging issue, idk what or how, but I spend 5 days, and enough scratching :)
             try {
-                println("=== cleanup STARTED ===")
                 appComponent.occtViewModel().close()
-                println("=== cleanup FINISHED ===")
             } catch (e: Exception) {
                 println("=== cleanup failed: ${e.message} ===")
             }
@@ -37,7 +34,6 @@ fun main() {
             Thread {
                 Thread.sleep(500)
 
-                println("=== ASSASSINATING PROCESS FROM OS LEVEL ===")
                 try {
                     val pid = ProcessHandle.current().pid()
 
