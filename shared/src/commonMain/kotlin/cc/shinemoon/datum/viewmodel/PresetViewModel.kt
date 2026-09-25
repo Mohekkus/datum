@@ -108,7 +108,7 @@ class PresetViewModel(
     }
 
     fun close() {
-        viewModelScope.launch { close() }
+        viewModelScope.launch { useCase.close() }
     }
 }
 
