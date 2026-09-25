@@ -11,7 +11,6 @@ import dev.nucleusframework.application.DecoratedWindow
 import dev.nucleusframework.application.NucleusBackend
 import dev.nucleusframework.application.nucleusApplication
 import dev.nucleusframework.window.TitleBar
-import androidx.compose.ui.window.ApplicationScope
 import kotlin.system.exitProcess
 
 fun main() {
@@ -24,29 +23,23 @@ fun main() {
         )
 
         fun onCloseApp() {
-            // Have a hanging issue, idk what or how, but I spend 5 days, and enough scratching :)
             try {
                 appComponent.occtViewModel().close()
             } catch (e: Exception) {
-                println("=== cleanup failed: ${e.message} ===")
+                println("OCCT cleanup warning: ${e.message}")
             }
 
-            Thread {
-                Thread.sleep(500)
-
-                try {
-                    val pid = ProcessHandle.current().pid()
-
-                    Runtime.getRuntime().exec("taskkill /F /PID $pid")
-                } catch (e: Exception) {
-                    println("Taskkill failed, falling back to halt: ${e.message}")
-                    Runtime.getRuntime().halt(0)
-                }
-            }.apply {
-                isDaemon = true
-                start()
+            try {
+                appComponent.databaseInitializer().close()
+            } catch (e: Exception) {
+                println("Database cleanup warning: ${e.message}")
             }
-            exitApplication()
+
+            try {
+                exitApplication()
+            } finally {
+                exitProcess(0)
+            }
         }
 
         DecoratedWindow(

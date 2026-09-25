@@ -45,4 +45,9 @@ class DatabaseInitializer @Inject constructor() {
             .setQueryCoroutineContext(Dispatchers.IO)
             .build()
     }
+
+    fun close() {
+        db?.close()
+        db = null
+    }
 }
