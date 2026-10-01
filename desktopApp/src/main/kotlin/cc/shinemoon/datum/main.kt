@@ -22,23 +22,44 @@ fun main() {
             size = DpSize(width = 1280.dp, height = 820.dp)
         )
 
+        /**
+            Known issue: calling exitProcess(0)/System.exit(0) here hangs the JVM indefinitely
+            on Windows, with no deadlock or contested lock (confirmed via WinDbg thread dump —
+            every thread is cleanly parked; the original JVM main thread's launcher wait
+            (jli!CallJavaMainInNewThread) just never gets satisfied). Root cause is unresolved
+            and likely sits in the JDK's native launcher/Tao's windowing teardown interaction,
+            not application code. DB/OCCT close() and Window.dispose() calls below are correct
+            and kept, but do not fix the hang on their own — they were ruled out individually.
+            Workaround: skip graceful exitProcess and hard-kill the process instead.
+        **/
         fun onCloseApp() {
             try {
                 appComponent.occtViewModel().close()
             } catch (e: Exception) {
                 println("OCCT cleanup warning: ${e.message}")
             }
-
             try {
                 appComponent.databaseInitializer().close()
             } catch (e: Exception) {
                 println("Database cleanup warning: ${e.message}")
             }
+            try {
+                java.awt.Window.getWindows().forEach { it.dispose() }
+            } catch (e: Exception) {
+                println("Windows cleanup warning: ${e.message}")
+            }
 
             try {
                 exitApplication()
             } finally {
-                exitProcess(0)
+                Thread {
+                    try {
+                        val pid = ProcessHandle.current().pid()
+                        Runtime.getRuntime().exec("taskkill /F /PID $pid")
+                    } catch (e: Exception) {
+                        Runtime.getRuntime().halt(0)
+                    }
+                }.apply { isDaemon = true }.start()
             }
         }
 
