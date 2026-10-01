@@ -11,9 +11,12 @@ import dev.nucleusframework.application.DecoratedWindow
 import dev.nucleusframework.application.NucleusBackend
 import dev.nucleusframework.application.nucleusApplication
 import dev.nucleusframework.window.TitleBar
+import io.github.vinceglb.filekit.FileKit
 import kotlin.system.exitProcess
 
 fun main() {
+    FileKit.init(appId = "DatumFileKit")
+
     nucleusApplication(backend = NucleusBackend.Tao) {
         val appComponent = DaggerAppComponent.create()
         initDependencies(appComponent, appComponent.presetViewModelFactory())

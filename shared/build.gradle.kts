@@ -16,7 +16,7 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.compose.uiToolingPreview)
 
-            implementation("io.github.vinceglb:filekit-core:0.16.0")
+            api("io.github.vinceglb:filekit-core:0.16.0")
             implementation("io.github.vinceglb:filekit-dialogs:0.16.0")
             implementation("io.github.vinceglb:filekit-dialogs-compose:0.16.0")
 
