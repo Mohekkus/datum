@@ -12,10 +12,12 @@ import javax.inject.Singleton
 private val DirectOcctNative = OcctBridge
 
 /** Direct DLL-backed API for embedding in an IntelliJ/Kotlin application. */
-@Singleton
-internal class OcctInspectionSession @Inject constructor(
+internal class OcctInspectionSession(
     private val dllResolver: OcctDllResolver
 ) : Closeable {
+    init {
+        OcctLifecycleManager.register(this)
+    }
     private var handle: Long = 0L
     private val nativeDll: Path
         get() {
@@ -103,6 +105,7 @@ internal class OcctInspectionSession @Inject constructor(
     }
 
     override fun close() {
+        OcctLifecycleManager.unregister(this)
         if (handle != 0L) {
             DirectOcctNative.destroyContext(handle)
             handle = 0L

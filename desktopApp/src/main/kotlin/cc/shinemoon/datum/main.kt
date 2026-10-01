@@ -13,9 +13,10 @@ import dev.nucleusframework.application.nucleusApplication
 import dev.nucleusframework.window.TitleBar
 import io.github.vinceglb.filekit.FileKit
 import kotlin.system.exitProcess
+import session.OcctLifecycleManager
 
 fun main() {
-    FileKit.init(appId = "DatumFileKit")
+    FileKit.init(appId = "cc.shinemoon.datum")
 
     nucleusApplication(backend = NucleusBackend.Tao) {
         val appComponent = DaggerAppComponent.create()
@@ -37,6 +38,7 @@ fun main() {
         **/
         fun onCloseApp() {
             try {
+                OcctLifecycleManager.cleanup()
                 appComponent.occtViewModel().close()
             } catch (e: Exception) {
                 println("OCCT cleanup warning: ${e.message}")
@@ -55,14 +57,14 @@ fun main() {
             try {
                 exitApplication()
             } finally {
-                Thread {
-                    try {
-                        val pid = ProcessHandle.current().pid()
-                        Runtime.getRuntime().exec("taskkill /F /PID $pid")
-                    } catch (e: Exception) {
-                        Runtime.getRuntime().halt(0)
-                    }
-                }.apply { isDaemon = true }.start()
+//                Thread {
+//                    try {
+//                        val pid = ProcessHandle.current().pid()
+//                        Runtime.getRuntime().exec("taskkill /F /PID $pid")
+//                    } catch (e: Exception) {
+//                        Runtime.getRuntime().halt(0)
+//                    }
+//                }.apply { isDaemon = true }.start()
             }
         }
 

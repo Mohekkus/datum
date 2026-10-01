@@ -6,6 +6,9 @@ import cc.shinemoon.datum.usecase.DatabaseUseCase
 import cc.shinemoon.datum.usecase.OcctUseCase
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
+import session.OcctLifecycleManager
+import session.OcctSessionManager
 import javax.inject.Singleton
 
 @Module
@@ -17,4 +20,11 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindDatabaseUseCase(impl: PresetDatabaseRepository): DatabaseUseCase
+
+    companion object {
+        @Provides
+        @Singleton
+        fun provideOcctSessionProvider(): () -> OcctSessionManager =
+            OcctLifecycleManager.sessionProvider
+    }
 }
