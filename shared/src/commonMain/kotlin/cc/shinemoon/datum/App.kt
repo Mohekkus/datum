@@ -38,13 +38,23 @@ import cc.shinemoon.datum.viewmodel.OcctViewModel
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.X
 import kotlin.reflect.KFunction
+import java.io.File
 
 @Composable
-fun App() {
+fun App(initialFile: File? = null) {
     MaterialTheme {
         val viewmodel = viewModel { viewModelFactory.occtViewModel() as OcctViewModel }
         val state by viewmodel.uiState.collectAsState()
         var screen by remember { mutableStateOf<Screen>(Screen.DropZone) }
+        var pendingFile by remember { mutableStateOf(initialFile) }
+
+        LaunchedEffect(pendingFile) {
+            val file = pendingFile ?: return@LaunchedEffect
+            pendingFile = null
+            if (state.inspectionData == null && !state.isLoading && state.error == null) {
+                viewmodel.inspect(file)
+            }
+        }
 
         LaunchedEffect(state.inspectionData) {
             if (state.inspectionData != null) screen = Screen.Results

@@ -5,7 +5,8 @@ import java.nio.file.Path
 import javax.inject.Inject
 import javax.inject.Singleton
 
-class OcctSessionManager internal constructor(
+@Singleton
+class OcctSessionManager @Inject internal constructor(
     private val session: OcctInspectionSession
 ) {
 
@@ -14,7 +15,6 @@ class OcctSessionManager internal constructor(
     }
 
     fun close() {
-        println("[close] OcctSessionManager.close()")
         session.close()
     }
 }

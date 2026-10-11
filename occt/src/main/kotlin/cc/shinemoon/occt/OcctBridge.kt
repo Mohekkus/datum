@@ -49,4 +49,5 @@ internal object OcctBridge {
     @JvmStatic external fun getMeshNormals(handle: Long): FloatArray?
     @JvmStatic external fun getMeshTriangles(handle: Long): IntArray?
     @JvmStatic external fun getMeshTriangleFaceIds(handle: Long): IntArray?
+    @JvmStatic external fun shutdownProcess()
 }

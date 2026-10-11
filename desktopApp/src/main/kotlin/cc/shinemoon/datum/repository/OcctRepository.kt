@@ -11,14 +11,13 @@ import javax.inject.Singleton
 
 @Singleton
 class OcctRepository @Inject constructor(
-    private val sessionProvider: () -> OcctSessionManager
+    private val sessionManager: OcctSessionManager
 ): OcctUseCase {
 
     override fun inspect(file: File): OcctInspectionData =
-        sessionProvider().inspect(file.toPath()).toStructuredModel()
+        sessionManager.inspect(file.toPath()).toStructuredModel()
 
     override fun close() {
-        println("[close] OcctRepository.close()")
-        sessionProvider().close()
+        sessionManager.close()
     }
 }

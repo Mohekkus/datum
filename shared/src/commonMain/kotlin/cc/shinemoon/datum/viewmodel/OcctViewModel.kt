@@ -42,7 +42,6 @@ class OcctViewModel @Inject constructor(
     }
 
     override fun close() {
-        println("[close] OcctViewModel.close()")
         occtUseCase.close()
         viewModelScope.cancel()
     }

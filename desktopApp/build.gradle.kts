@@ -32,6 +32,25 @@ nucleus {
     application {
         mainClass = "cc.shinemoon.datum.MainKt"
 
+        nativeDistributions {
+            packageName = "cc.shinemoon.datum"
+            packageVersion = "0.1.0"
+            targetFormats(dev.nucleusframework.desktop.application.dsl.TargetFormat.Nsis)
+
+            fileAssociation(
+                mimeType = "application/step",
+                extension = "step",
+                description = "STEP Assembly File",
+            )
+
+            windows {
+                menuGroup = "Datum"
+                nsis {
+                    perMachine = false
+                }
+            }
+        }
+
         graalvm {
             isEnabled.set(true)
             buildArgs.add("-H:+AddAllCharsets")

@@ -12,13 +12,14 @@ import dev.nucleusframework.application.NucleusBackend
 import dev.nucleusframework.application.nucleusApplication
 import dev.nucleusframework.window.TitleBar
 import io.github.vinceglb.filekit.FileKit
-import kotlin.system.exitProcess
-import session.OcctLifecycleManager
+import java.io.File
 
-fun main() {
+fun main(args: Array<String>) {
     FileKit.init(appId = "cc.shinemoon.datum")
 
-    nucleusApplication(backend = NucleusBackend.Tao) {
+    val pendingStepFile = resolveStepFileFromArgs(args)
+
+    nucleusApplication(args, backend = NucleusBackend.Tao) {
         val appComponent = DaggerAppComponent.create()
         initDependencies(appComponent, appComponent.presetViewModelFactory())
 
@@ -27,18 +28,10 @@ fun main() {
         )
 
         /**
-            Known issue: calling exitProcess(0)/System.exit(0) here hangs the JVM indefinitely
-            on Windows, with no deadlock or contested lock (confirmed via WinDbg thread dump —
-            every thread is cleanly parked; the original JVM main thread's launcher wait
-            (jli!CallJavaMainInNewThread) just never gets satisfied). Root cause is unresolved
-            and likely sits in the JDK's native launcher/Tao's windowing teardown interaction,
-            not application code. DB/OCCT close() and Window.dispose() calls below are correct
-            and kept, but do not fix the hang on their own — they were ruled out individually.
-            Workaround: skip graceful exitProcess and hard-kill the process instead.
+            Resolved
         **/
         fun onCloseApp() {
             try {
-                OcctLifecycleManager.cleanup()
                 appComponent.occtViewModel().close()
             } catch (e: Exception) {
                 println("OCCT cleanup warning: ${e.message}")
@@ -54,18 +47,7 @@ fun main() {
                 println("Windows cleanup warning: ${e.message}")
             }
 
-            try {
-                exitApplication()
-            } finally {
-//                Thread {
-//                    try {
-//                        val pid = ProcessHandle.current().pid()
-//                        Runtime.getRuntime().exec("taskkill /F /PID $pid")
-//                    } catch (e: Exception) {
-//                        Runtime.getRuntime().halt(0)
-//                    }
-//                }.apply { isDaemon = true }.start()
-            }
+            exitApplication()
         }
 
         DecoratedWindow(
@@ -79,7 +61,21 @@ fun main() {
                 IconButton(onClick = { nucleusWindow.setMaximized(!state.isMaximized) }) { /* maximize icon */ }
                 IconButton(onClick = ::onCloseApp) { /* close icon */ }
             }
-            App()
+            App(initialFile = pendingStepFile)
         }
     }
 }
+
+private fun resolveStepFileFromArgs(args: Array<String>): File? =
+    args
+        .map { it.trim().trimQuotes() }
+        .filter { it.isNotBlank() }
+        .filter { it.isNotEmpty() && it[0].isLetterOrDigit() }
+        .firstNotNullOfOrNull { path ->
+            val file = File(path)
+            if (file.isFile && path.endsWith(".stp", ignoreCase = true)) file else null
+        }
+        ?.also { println("[Datum] cold-start file argument: $it") }
+
+private fun String.trimQuotes(): String =
+    if (startsWith('"') && endsWith('"') && length >= 2) this.substring(1, length - 1) else this
