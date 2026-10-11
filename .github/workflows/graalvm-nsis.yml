@@ -1,0 +1,26 @@
+name: GraalVM NSIS
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build-nsis:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: NucleusFramework/Nucleus/.github/actions/setup-nucleus@v2.5.15
+        with:
+          java-version: '25'
+          graalvm: 'true'
+          setup-node: 'true'
+
+      - run: ./gradlew :desktopApp:packageGraalvmNsis --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: graalvm-nsis-windows
+          path: desktopApp/build/compose/binaries/**/graalvm-nsis/**

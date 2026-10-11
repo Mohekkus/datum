@@ -14,8 +14,7 @@ Datum currently targets Windows desktop. The OCCT bridge is bundled as a Windows
 
 - Windows is currently the supported platform.
 - The OCCT bridge is currently distributed as a Windows DLL.
-- Explorer context-menu integration, batch inspection, PDF export, and automatic updates
-  are not included yet.
+- Batch inspection, PDF export, and automatic updates are not included yet.
 - Presets are stored locally on the current machine and are not synchronized.
 
 ## Project Layout
@@ -40,7 +39,14 @@ options:
 
 The packaged Windows installer can be created with:
 
-`./gradlew :desktopApp:packageMsi`
+- JVM runtime: `./gradlew :desktopApp:packageReleaseDistributionForCurrentOS`
+- GraalVM native image: `./gradlew :desktopApp:packageGraalvmNsis`
+
+## Opening STEP Files
+
+Right-click any `.step` or `.stp` file in Windows Explorer and choose "Open with Datum" —
+the app launches and starts inspecting that file automatically (cold start). If Datum is
+already running, the already-opened file window is simply brought to the front.
 
 ## Running Tests
 

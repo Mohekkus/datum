@@ -10,11 +10,11 @@ Initial public development release.
 - Preset creation, editing, selection, and deletion.
 - Preset rule evaluation and status presentation.
 - Local persistence for user presets.
-- Windows desktop packaging configuration.
+- Windows desktop packaging: NSIS installer with `.step`/`.stp` file association.
+- Open `.step`/`.stp` files directly from Explorer — first file in launch args auto-inspects on cold start.
 
 ### Known limitations
 
 - Windows is the only supported platform at this stage.
-- Explorer context-menu integration is not included yet.
 - Batch inspection, PDF export, and automatic updates are planned for later releases.
 - The application is still under active development and behavior may change.

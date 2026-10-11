@@ -27,9 +27,6 @@ fun main(args: Array<String>) {
             size = DpSize(width = 1280.dp, height = 820.dp)
         )
 
-        /**
-            Resolved
-        **/
         fun onCloseApp() {
             try {
                 appComponent.occtViewModel().close()
@@ -73,9 +70,8 @@ private fun resolveStepFileFromArgs(args: Array<String>): File? =
         .filter { it.isNotEmpty() && it[0].isLetterOrDigit() }
         .firstNotNullOfOrNull { path ->
             val file = File(path)
-            if (file.isFile && path.endsWith(".stp", ignoreCase = true)) file else null
+            if (file.isFile && (path.endsWith(".stp", ignoreCase = true) || path.endsWith(".step", ignoreCase = true))) file else null
         }
-        ?.also { println("[Datum] cold-start file argument: $it") }
 
 private fun String.trimQuotes(): String =
     if (startsWith('"') && endsWith('"') && length >= 2) this.substring(1, length - 1) else this
