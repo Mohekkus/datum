@@ -105,7 +105,6 @@ internal class OcctInspectionSession @Inject constructor(
     override fun close() {
         if (handle != 0L) {
             DirectOcctNative.destroyContext(handle)
-            DirectOcctNative.shutdownProcess()
             handle = 0L
         }
     }
