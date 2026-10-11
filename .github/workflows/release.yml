@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: NucleusFramework/Nucleus/.github/actions/setup-nucleus@v2.5.15
+        with:
+          java-version: '25'
+          graalvm: 'true'
+          setup-node: 'true'
+
+      - run: ./gradlew :desktopApp:packageGraalvmNsis --no-daemon
+
+      - name: Create release
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Datum 0.1.0"
+          tag_name: "v0.1.0"
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -23,4 +23,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: graalvm-nsis-windows
-          path: desktopApp/build/compose/binaries/**/graalvm-nsis/**
+          path: desktopApp/build/compose/binaries/**/graalvm-nsis/*.exe
+          compression-level: 0
